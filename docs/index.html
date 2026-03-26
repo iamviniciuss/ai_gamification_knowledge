@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="color-scheme: dark;">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Solo Agent Ops</title>
+<meta name="theme-color" content="#0d1117">
 <style>
   :root {
     --bg: #0d1117;
@@ -50,7 +51,7 @@
   nav .logo { font-weight: 700; font-size: 16px; color: var(--green); letter-spacing: 1px; }
   nav .logo span { color: var(--text-dim); font-weight: 400; }
   nav .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
-  nav .btn-nav { background: none; border: 1px solid var(--border); color: var(--text-dim); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all .2s; }
+  nav .btn-nav { background: none; border: 1px solid var(--border); color: var(--text-dim); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: border-color .2s, color .2s; }
   nav .btn-nav:hover { border-color: var(--cyan); color: var(--cyan); }
   .score-badge { background: var(--bg3); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; font-size: 13px; }
   .score-badge span { color: var(--green); font-weight: 700; }
@@ -65,11 +66,11 @@
   .hero h1 .accent { color: var(--green); }
   .hero p { color: var(--text-dim); margin-top: 12px; font-size: 16px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6; }
   .hero .tagline { display: inline-block; background: var(--green-dim); color: var(--green); border: 1px solid var(--green); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; margin-bottom: 20px; }
-  .btn-primary { background: var(--green); color: #000; border: none; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all .2s; letter-spacing: .5px; }
+  .btn-primary { background: var(--green); color: #000; border: none; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; transition: background .2s, transform .2s, box-shadow .2s; letter-spacing: .5px; }
   .btn-primary:hover { background: #52d96a; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(63,185,80,.3); }
-  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s; }
+  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: border-color .2s, color .2s; }
   .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
-  .btn-danger { background: var(--red); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s; }
+  .btn-danger { background: var(--red); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: opacity .2s; }
   .btn-danger:hover { opacity: .85; }
 
   .pillars-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 40px 0; }
@@ -108,7 +109,7 @@
   .level-header .desc { font-size: 12px; color: var(--text-dim); margin-left: auto; }
 
   .missions-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
-  .mission-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 14px; cursor: pointer; transition: all .2s; position: relative; }
+  .mission-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 14px; cursor: pointer; transition: border-color .2s, transform .2s; position: relative; }
   .mission-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
   .mission-card.completed { border-color: var(--green); }
   .mission-card.completed::after { content: '✓'; position: absolute; top: 8px; right: 10px; color: var(--green); font-size: 14px; font-weight: 700; }
@@ -134,7 +135,7 @@
   .pillar-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; }
 
   .stepper { display: flex; gap: 0; margin-bottom: 28px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .step-item { flex: 1; padding: 10px 8px; text-align: center; font-size: 11px; color: var(--text-dim); border-right: 1px solid var(--border); transition: all .2s; cursor: default; }
+  .step-item { flex: 1; padding: 10px 8px; text-align: center; font-size: 11px; color: var(--text-dim); border-right: 1px solid var(--border); transition: background .2s, color .2s; cursor: default; }
   .step-item:last-child { border-right: none; }
   .step-item.active { background: var(--bg3); color: var(--cyan); font-weight: 700; }
   .step-item.done { color: var(--green); }
@@ -150,7 +151,7 @@
   label { display: block; font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
   .radio-group, .select-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
   .radio-option { display: none; }
-  .radio-label { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: 13px; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+  .radio-label { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: 13px; transition: border-color .2s, background .2s, color .2s; display: flex; align-items: center; gap: 6px; }
   .radio-label:hover { border-color: var(--cyan); }
   .radio-option:checked + .radio-label { border-color: var(--cyan); background: #1c2a3a; color: var(--cyan); font-weight: 600; }
 
@@ -197,7 +198,7 @@
   .ideal-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
   .ideal-table td:first-child { color: var(--cyan); font-weight: 600; white-space: nowrap; width: 140px; font-size: 12px; }
   .ideal-table tr:last-child td { border-bottom: none; }
-  .show-ideal-btn { background: var(--bg3); border: 1px dashed var(--yellow); color: var(--yellow); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; margin-bottom: 16px; transition: all .2s; }
+  .show-ideal-btn { background: var(--bg3); border: 1px dashed var(--yellow); color: var(--yellow); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; margin-bottom: 16px; transition: background .2s; }
   .show-ideal-btn:hover { background: #2a2000; }
 
   /* SUMMARY SCREEN */
@@ -231,7 +232,7 @@
   .rules-content .pts.neg { color: var(--red); }
 
   /* TOAST */
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; z-index: 999; transform: translateY(100px); opacity: 0; transition: all .3s; max-width: 300px; }
+  .toast { position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); right: max(24px, env(safe-area-inset-right)); background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; z-index: 999; transform: translateY(100px); opacity: 0; transition: transform .3s, opacity .3s; max-width: min(300px, calc(100vw - 32px)); }
   .toast.show { transform: translateY(0); opacity: 1; }
   .toast.success { border-color: var(--green); color: var(--green); }
   .toast.error { border-color: var(--red); color: var(--red); }
@@ -242,7 +243,7 @@
   .academia-hero p { color: var(--text-dim); margin-top: 8px; font-size: 14px; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.6; }
 
   .pillar-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg2); overflow-x: auto; position: sticky; top: 57px; z-index: 90; }
-  .pillar-tab { padding: 14px 24px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-dim); white-space: nowrap; transition: all .2s; background: none; border-top: none; border-left: none; border-right: none; }
+  .pillar-tab { padding: 14px 24px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-dim); white-space: nowrap; transition: color .2s, border-color .2s; background: none; border-top: none; border-left: none; border-right: none; }
   .pillar-tab:hover { color: var(--text); }
   .pillar-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
 
@@ -288,14 +289,152 @@
   .mistake-item .texts { color: var(--text-dim); line-height: 1.6; }
   .mistake-item .texts .good { color: var(--green); display: block; margin-top: 2px; }
 
-  /* RESPONSIVE */
-  @media (max-width: 700px) {
+  /* TOUCH & SAFE AREA */
+  body {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  button, .btn-nav, .btn-primary, .btn-secondary, .btn-danger, .radio-label, .pillar-tab, .mission-card {
+    touch-action: manipulation;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  @media (hover: none) {
+    .mission-card:hover, .btn-primary:hover, .btn-secondary:hover, .btn-nav:hover { transform: none; box-shadow: none; }
+  }
+
+  /* FLUID TYPOGRAPHY */
+  .hero h1 { font-size: clamp(28px, 5vw + 12px, 48px); }
+  .summary-header h1 { font-size: clamp(24px, 4vw + 10px, 36px); }
+  .big-score { font-size: clamp(48px, 8vw + 16px, 72px); }
+  .academia-hero h2 { font-size: clamp(20px, 3vw + 10px, 28px); }
+  .scoring-header h2 { font-size: clamp(20px, 3vw + 8px, 26px); }
+
+  /* HAMBURGER MENU */
+  .nav-toggle { display: none; background: none; border: 1px solid var(--border); color: var(--text-dim); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 18px; line-height: 1; touch-action: manipulation; }
+
+  /* ==================== RESPONSIVE BREAKPOINTS (mobile-first) ==================== */
+
+  /* ---------- MOBILE (< 480px) ---------- */
+  @media (max-width: 479px) {
+    .container, .container-wide { padding: 20px 16px; }
+    .hero { padding: 32px 0 24px; }
+
+    /* Nav: hamburger */
+    .nav-toggle { display: block; }
+    nav { flex-wrap: wrap; padding: 10px 16px; }
+    nav .nav-right { display: none; width: 100%; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); }
+    nav .nav-right.open { display: flex; }
+    nav .btn-nav { width: 100%; text-align: center; padding: 10px 14px; min-height: 44px; }
+    .score-badge { text-align: center; width: 100%; }
+
+    /* Grids: 1 column */
+    .pillars-grid { grid-template-columns: 1fr; }
+    .missions-grid { grid-template-columns: 1fr; }
+    .scoring-grid { grid-template-columns: 1fr; }
+    .pillar-breakdown { grid-template-columns: 1fr; }
+    .concept-grid { grid-template-columns: 1fr; }
+
+    /* Campaign bar: vertical stack */
+    .campaign-bar { flex-direction: column; padding: 16px; gap: 14px; align-items: stretch; }
+    .campaign-stat { text-align: left; display: flex; align-items: center; justify-content: space-between; }
+    .campaign-stat .val { font-size: 22px; }
+    .campaign-stat .lbl { font-size: 12px; margin-top: 0; }
+
+    /* Stepper: compact */
+    .stepper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .step-item { min-width: 60px; padding: 8px 6px; font-size: 10px; }
+
+    /* Tables: card layout */
+    .missions-summary table, .missions-summary thead, .missions-summary tbody, .missions-summary th, .missions-summary td, .missions-summary tr { display: block; }
+    .missions-summary thead { position: absolute; top: -9999px; left: -9999px; }
+    .missions-summary tr { border-bottom: 1px solid var(--border); padding: 10px 14px; }
+    .missions-summary td { padding: 4px 14px; text-align: right; position: relative; padding-left: 50%; }
+    .missions-summary td::before { content: attr(data-label); position: absolute; left: 14px; width: 45%; text-align: left; font-weight: 700; color: var(--text-dim); font-size: 11px; }
+
+    .ideal-table td:first-child { white-space: normal; width: auto; }
+
+    /* Analogy box: stack */
+    .analogy-box .analogy-row { flex-direction: column; gap: 4px; }
+    .analogy-box .left { min-width: 0; }
+    .analogy-box .arrow { display: none; }
+
+    /* Step panel */
+    .step-panel { padding: 18px 14px; }
+    .step-panel h3 { font-size: 13px; }
+    .scenario-box { padding: 12px 14px; font-size: 13px; }
+
+    /* Buttons: full width */
+    .hero .btn-primary, .hero .btn-secondary { width: 100%; }
+    .nav-btns { flex-direction: column; }
+    .nav-btns .btn-primary, .nav-btns .btn-secondary { width: 100%; text-align: center; }
+
+    /* Story card */
+    .story-card { padding: 20px 16px; }
+    .story-card h3 { font-size: 17px; }
+    .story-card blockquote { font-size: 13px; padding-left: 12px; }
+
+    /* Pillar tabs: scrollable */
+    .pillar-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .pillar-tabs::-webkit-scrollbar { display: none; }
+    .pillar-tab { padding: 12px 16px; font-size: 12px; min-height: 44px; }
+
+    /* Score display */
+    .score-display .total { font-size: 42px; }
+
+    /* Home button row */
+    .home-actions { flex-direction: column; width: 100%; }
+    .home-actions .btn-primary, .home-actions .btn-secondary { width: 100%; text-align: center; }
+  }
+
+  /* ---------- TABLET (480px - 767px) ---------- */
+  @media (min-width: 480px) and (max-width: 767px) {
+    .container, .container-wide { padding: 24px 20px; }
+
+    /* Nav: hamburger still active */
+    .nav-toggle { display: block; }
+    nav .nav-right { display: none; width: 100%; flex-direction: row; flex-wrap: wrap; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border); justify-content: center; }
+    nav .nav-right.open { display: flex; }
+    nav .btn-nav { min-height: 44px; }
+
+    /* Grids: 2 columns */
     .pillars-grid { grid-template-columns: repeat(2, 1fr); }
     .missions-grid { grid-template-columns: repeat(2, 1fr); }
     .scoring-grid { grid-template-columns: 1fr; }
     .pillar-breakdown { grid-template-columns: repeat(2, 1fr); }
-    .hero h1 { font-size: 32px; }
-    .campaign-bar { flex-wrap: wrap; }
+    .concept-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* Campaign bar */
+    .campaign-bar { flex-wrap: wrap; gap: 16px; }
+
+    /* Stepper */
+    .stepper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .ideal-table td:first-child { white-space: normal; }
+
+    .analogy-box .analogy-row { flex-direction: column; gap: 4px; }
+    .analogy-box .left { min-width: 0; }
+    .analogy-box .arrow { display: none; }
+
+    .hero { padding: 40px 0 28px; }
+  }
+
+  /* ---------- SMALL DESKTOP (768px - 1023px) ---------- */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+    .missions-grid { grid-template-columns: repeat(3, 1fr); }
+    .concept-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ---------- DESKTOP (>= 1024px) ---------- */
+  @media (min-width: 1024px) {
+    .pillars-grid { grid-template-columns: repeat(4, 1fr); }
+    .missions-grid { grid-template-columns: repeat(5, 1fr); }
+    .concept-grid { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
 </head>
@@ -346,7 +485,7 @@
       </div>
     </div>
 
-    <div style="display:flex;gap:12px;margin-top:8px;">
+    <div class="home-actions" style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;justify-content:center;">
       <button class="btn-primary" onclick="goTo('hub')">▶ Start Playing</button>
       <button class="btn-secondary" onclick="goTo('learn')" style="border-color:var(--purple);color:var(--purple);">📚 Academia</button>
       <button class="btn-secondary" onclick="goTo('rules')">Rules & Scoring</button>
@@ -358,6 +497,7 @@
 <div id="screen-hub" class="screen">
   <nav>
     <div class="logo">Solo <span>Agent</span> Ops</div>
+    <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-right">
       <div class="score-badge">Total: <span id="nav-score">0</span> / 240</div>
       <button class="btn-nav" onclick="goTo('learn')" style="color:var(--purple);border-color:var(--purple)">📚 Academia</button>
@@ -388,6 +528,7 @@
 <div id="screen-mission" class="screen">
   <nav>
     <div class="logo">Solo <span>Agent</span> Ops</div>
+    <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-right">
       <div class="score-badge" id="mission-score-badge">Mission <span id="mission-num-nav">1</span> / 20</div>
       <button class="btn-nav" onclick="confirmLeave()">← Hub</button>
@@ -409,6 +550,7 @@
 <div id="screen-scoring" class="screen">
   <nav>
     <div class="logo">Solo <span>Agent</span> Ops</div>
+    <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-right">
       <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
     </div>
@@ -457,6 +599,7 @@
 <div id="screen-summary" class="screen">
   <nav>
     <div class="logo">Solo <span>Agent</span> Ops</div>
+    <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-right">
       <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
     </div>
@@ -481,6 +624,7 @@
 <div id="screen-rules" class="screen">
   <nav>
     <div class="logo">Solo <span>Agent</span> Ops</div>
+    <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-right">
       <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
       <button class="btn-nav" onclick="goTo('home')">Home</button>
@@ -528,6 +672,7 @@
 <div id="screen-learn" class="screen">
   <nav>
     <div class="logo">Solo <span>Agent</span> Ops</div>
+    <button class="nav-toggle" onclick="this.nextElementSibling.classList.toggle('open')" aria-label="Toggle menu">☰</button>
     <div class="nav-right">
       <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
     </div>
