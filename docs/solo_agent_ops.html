@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solo Agent Ops</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --green: #3fb950;
+    --green-dim: #1a4220;
+    --cyan: #58a6ff;
+    --yellow: #d29922;
+    --red: #f85149;
+    --orange: #fb8500;
+    --purple: #bc8cff;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --pill1: #1c3a2e;
+    --pill1t: #3fb950;
+    --pill2: #1c2a3a;
+    --pill2t: #58a6ff;
+    --pill3: #2a1c3a;
+    --pill3t: #bc8cff;
+    --pill4: #3a1c1c;
+    --pill4t: #f85149;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; }
+  .screen.active { display: flex; flex-direction: column; }
+
+  /* NAV */
+  nav {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  nav .logo { font-weight: 700; font-size: 16px; color: var(--green); letter-spacing: 1px; }
+  nav .logo span { color: var(--text-dim); font-weight: 400; }
+  nav .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  nav .btn-nav { background: none; border: 1px solid var(--border); color: var(--text-dim); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all .2s; }
+  nav .btn-nav:hover { border-color: var(--cyan); color: var(--cyan); }
+  .score-badge { background: var(--bg3); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; font-size: 13px; }
+  .score-badge span { color: var(--green); font-weight: 700; }
+
+  /* MAIN CONTAINER */
+  .container { max-width: 900px; margin: 0 auto; padding: 32px 24px; width: 100%; flex: 1; }
+  .container-wide { max-width: 1100px; margin: 0 auto; padding: 32px 24px; width: 100%; flex: 1; }
+
+  /* HOME SCREEN */
+  .hero { text-align: center; padding: 60px 0 40px; }
+  .hero h1 { font-size: 48px; font-weight: 800; letter-spacing: -1px; }
+  .hero h1 .accent { color: var(--green); }
+  .hero p { color: var(--text-dim); margin-top: 12px; font-size: 16px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+  .hero .tagline { display: inline-block; background: var(--green-dim); color: var(--green); border: 1px solid var(--green); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 1px; margin-bottom: 20px; }
+  .btn-primary { background: var(--green); color: #000; border: none; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all .2s; letter-spacing: .5px; }
+  .btn-primary:hover { background: #52d96a; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(63,185,80,.3); }
+  .btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border); padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s; }
+  .btn-secondary:hover { border-color: var(--cyan); color: var(--cyan); }
+  .btn-danger { background: var(--red); color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all .2s; }
+  .btn-danger:hover { opacity: .85; }
+
+  .pillars-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 40px 0; }
+  .pillar-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px 16px; text-align: center; }
+  .pillar-card .icon { font-size: 28px; margin-bottom: 10px; }
+  .pillar-card h3 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .pillar-card p { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  .how-to { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 32px; }
+  .how-to h3 { color: var(--cyan); font-size: 14px; font-weight: 700; margin-bottom: 16px; letter-spacing: 1px; }
+  .steps-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .step-pill { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--text-dim); }
+  .step-pill .num { color: var(--green); font-weight: 700; margin-right: 4px; }
+
+  /* MISSION HUB */
+  .hub-header { margin-bottom: 24px; }
+  .hub-header h2 { font-size: 24px; font-weight: 700; }
+  .hub-header p { color: var(--text-dim); margin-top: 6px; }
+  .campaign-bar { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 28px; display: flex; align-items: center; gap: 24px; }
+  .campaign-stat { text-align: center; }
+  .campaign-stat .val { font-size: 28px; font-weight: 800; color: var(--green); }
+  .campaign-stat .lbl { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+  .progress-bar-wrap { flex: 1; }
+  .progress-bar-wrap .lbl { font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+  .progress-bar { background: var(--bg3); border-radius: 20px; height: 8px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), #52d96a); border-radius: 20px; transition: width .5s ease; }
+
+  .level-section { margin-bottom: 32px; }
+  .level-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .level-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .level-1 .level-badge { background: var(--pill1); color: var(--pill1t); }
+  .level-2 .level-badge { background: var(--pill2); color: var(--pill2t); }
+  .level-3 .level-badge { background: var(--pill3); color: var(--pill3t); }
+  .level-4 .level-badge { background: var(--pill4); color: var(--pill4t); }
+  .level-header h3 { font-size: 15px; font-weight: 700; }
+  .level-header .desc { font-size: 12px; color: var(--text-dim); margin-left: auto; }
+
+  .missions-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .mission-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 14px; cursor: pointer; transition: all .2s; position: relative; }
+  .mission-card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+  .mission-card.completed { border-color: var(--green); }
+  .mission-card.completed::after { content: '✓'; position: absolute; top: 8px; right: 10px; color: var(--green); font-size: 14px; font-weight: 700; }
+  .mission-card .num { font-size: 11px; color: var(--text-dim); font-weight: 600; margin-bottom: 6px; }
+  .mission-card .title { font-size: 12px; font-weight: 600; color: var(--text); line-height: 1.4; margin-bottom: 8px; }
+  .mission-card .pillar-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; display: inline-block; font-weight: 600; }
+  .mission-card .score-chip { margin-top: 8px; font-size: 11px; color: var(--text-dim); }
+  .mission-card .score-chip span { color: var(--green); font-weight: 700; }
+  .tag-dt { background: #1c2a3a; color: #58a6ff; }
+  .tag-pg { background: #2a1c3a; color: #bc8cff; }
+  .tag-vl { background: #1c3a1c; color: #3fb950; }
+  .tag-sc { background: #3a2a1c; color: #fb8500; }
+
+  /* MISSION PLAYER */
+  .mission-header { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 24px; }
+  .mission-header .meta { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .mission-header h2 { font-size: 20px; font-weight: 700; }
+  .diff-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+  .d1 { background: var(--pill1); color: var(--pill1t); }
+  .d2 { background: var(--pill2); color: var(--pill2t); }
+  .d3 { background: var(--pill3); color: var(--pill3t); }
+  .d4 { background: var(--pill4); color: var(--pill4t); }
+  .pillar-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; }
+
+  .stepper { display: flex; gap: 0; margin-bottom: 28px; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .step-item { flex: 1; padding: 10px 8px; text-align: center; font-size: 11px; color: var(--text-dim); border-right: 1px solid var(--border); transition: all .2s; cursor: default; }
+  .step-item:last-child { border-right: none; }
+  .step-item.active { background: var(--bg3); color: var(--cyan); font-weight: 700; }
+  .step-item.done { color: var(--green); }
+  .step-item .snum { display: block; font-size: 10px; margin-bottom: 2px; }
+
+  .step-panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+  .step-panel h3 { font-size: 14px; font-weight: 700; color: var(--cyan); letter-spacing: .5px; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+  .step-panel h3 .sicon { font-size: 18px; }
+  .scenario-box { background: var(--bg3); border-left: 3px solid var(--cyan); border-radius: 6px; padding: 16px 18px; color: var(--text); font-size: 14px; line-height: 1.7; }
+  .hint-box { background: var(--bg3); border: 1px dashed var(--border); border-radius: 6px; padding: 12px 16px; margin-top: 16px; font-size: 12px; color: var(--text-dim); }
+  .hint-box strong { color: var(--yellow); }
+
+  label { display: block; font-size: 13px; color: var(--text-dim); margin-bottom: 6px; }
+  .radio-group, .select-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .radio-option { display: none; }
+  .radio-label { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; cursor: pointer; font-size: 13px; transition: all .2s; display: flex; align-items: center; gap: 6px; }
+  .radio-label:hover { border-color: var(--cyan); }
+  .radio-option:checked + .radio-label { border-color: var(--cyan); background: #1c2a3a; color: var(--cyan); font-weight: 600; }
+
+  textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--text); font-size: 13px; line-height: 1.6; resize: vertical; font-family: inherit; }
+  textarea:focus { outline: none; border-color: var(--cyan); }
+  textarea::placeholder { color: var(--text-dim); }
+
+  .field-group { margin-bottom: 18px; }
+  .gate-list { display: flex; flex-direction: column; gap: 8px; }
+  .gate-item { display: flex; align-items: flex-start; gap: 10px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; }
+  .gate-item input[type=checkbox] { accent-color: var(--green); margin-top: 2px; flex-shrink: 0; width: 16px; height: 16px; }
+  .gate-item label { font-size: 13px; color: var(--text); margin: 0; cursor: pointer; }
+  .gate-item input:checked + label { color: var(--green); text-decoration: line-through; text-decoration-color: var(--green-dim); }
+
+  .nav-btns { display: flex; gap: 12px; justify-content: flex-end; align-items: center; }
+  .timer-display { margin-right: auto; font-size: 13px; color: var(--text-dim); }
+  .timer-display span { color: var(--yellow); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+  /* SCORING SCREEN */
+  .scoring-header { text-align: center; padding: 20px 0 10px; }
+  .scoring-header h2 { font-size: 26px; font-weight: 800; }
+  .scoring-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .score-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+  .score-section h3 { font-size: 13px; font-weight: 700; letter-spacing: .5px; margin-bottom: 16px; }
+  .score-section.positive h3 { color: var(--green); }
+  .score-section.negative h3 { color: var(--red); }
+  .score-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .score-item input[type=checkbox] { accent-color: var(--green); margin-top: 2px; flex-shrink: 0; width: 16px; height: 16px; }
+  .score-item label { font-size: 13px; cursor: pointer; line-height: 1.5; }
+  .score-item.neg input { accent-color: var(--red); }
+  .score-item input:checked + label { text-decoration: line-through; color: var(--text-dim); }
+  .score-display { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 20px; }
+  .score-display .total { font-size: 56px; font-weight: 900; line-height: 1; }
+  .score-display .denom { font-size: 20px; color: var(--text-dim); }
+  .score-display .grade { font-size: 15px; margin-top: 8px; font-weight: 600; }
+  .score-excellent { color: var(--green); }
+  .score-good { color: var(--cyan); }
+  .score-ok { color: var(--yellow); }
+  .score-bad { color: var(--red); }
+  .ideal-response { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; display: none; }
+  .ideal-response h3 { color: var(--yellow); font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+  .ideal-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .ideal-table th { text-align: left; padding: 8px 12px; background: var(--bg3); color: var(--text-dim); font-size: 11px; letter-spacing: .5px; font-weight: 700; }
+  .ideal-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  .ideal-table td:first-child { color: var(--cyan); font-weight: 600; white-space: nowrap; width: 140px; font-size: 12px; }
+  .ideal-table tr:last-child td { border-bottom: none; }
+  .show-ideal-btn { background: var(--bg3); border: 1px dashed var(--yellow); color: var(--yellow); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%; margin-bottom: 16px; transition: all .2s; }
+  .show-ideal-btn:hover { background: #2a2000; }
+
+  /* SUMMARY SCREEN */
+  .summary-header { text-align: center; padding: 40px 0 20px; }
+  .summary-header h1 { font-size: 36px; font-weight: 800; }
+  .summary-header p { color: var(--text-dim); margin-top: 8px; }
+  .big-score { font-size: 72px; font-weight: 900; color: var(--green); text-align: center; line-height: 1; }
+  .big-score-denom { text-align: center; color: var(--text-dim); font-size: 18px; margin-bottom: 32px; }
+  .pillar-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .pillar-stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 14px; text-align: center; }
+  .pillar-stat .icon { font-size: 24px; margin-bottom: 8px; }
+  .pillar-stat .pname { font-size: 12px; color: var(--text-dim); margin-bottom: 4px; }
+  .pillar-stat .pval { font-size: 22px; font-weight: 800; }
+  .missions-summary { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+  .missions-summary table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .missions-summary th { padding: 10px 14px; background: var(--bg3); color: var(--text-dim); text-align: left; font-size: 11px; letter-spacing: .5px; }
+  .missions-summary td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .missions-summary tr:last-child td { border-bottom: none; }
+  .missions-summary tr:hover td { background: var(--bg3); }
+
+  /* RULES SCREEN */
+  .rules-content { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
+  .rules-content h3 { color: var(--cyan); font-size: 15px; font-weight: 700; margin: 24px 0 12px; }
+  .rules-content h3:first-child { margin-top: 0; }
+  .rules-content p { color: var(--text-dim); font-size: 14px; line-height: 1.7; margin-bottom: 8px; }
+  .rules-content ul { color: var(--text-dim); font-size: 14px; line-height: 1.9; padding-left: 20px; }
+  .rules-content .score-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .rules-content .score-row:last-child { border: none; }
+  .rules-content .pts { font-weight: 700; min-width: 36px; }
+  .rules-content .pts.pos { color: var(--green); }
+  .rules-content .pts.neg { color: var(--red); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; z-index: 999; transform: translateY(100px); opacity: 0; transition: all .3s; max-width: 300px; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--green); color: var(--green); }
+  .toast.error { border-color: var(--red); color: var(--red); }
+
+  /* ACADEMIA SCREEN */
+  .academia-hero { background: linear-gradient(135deg, #0d1117 0%, #161b22 100%); border-bottom: 1px solid var(--border); padding: 36px 24px 28px; text-align: center; }
+  .academia-hero h2 { font-size: 28px; font-weight: 800; }
+  .academia-hero p { color: var(--text-dim); margin-top: 8px; font-size: 14px; max-width: 520px; margin-left: auto; margin-right: auto; line-height: 1.6; }
+
+  .pillar-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); background: var(--bg2); overflow-x: auto; position: sticky; top: 57px; z-index: 90; }
+  .pillar-tab { padding: 14px 24px; font-size: 13px; font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text-dim); white-space: nowrap; transition: all .2s; background: none; border-top: none; border-left: none; border-right: none; }
+  .pillar-tab:hover { color: var(--text); }
+  .pillar-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+  .pillar-content { display: none; }
+  .pillar-content.active { display: block; }
+
+  .story-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 20px; }
+  .story-card .story-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 12px; }
+  .story-card h3 { font-size: 20px; font-weight: 800; margin-bottom: 16px; line-height: 1.3; }
+  .story-card p { color: #c9d1d9; font-size: 14px; line-height: 1.8; margin-bottom: 14px; }
+  .story-card p:last-child { margin-bottom: 0; }
+  .story-card .highlight { color: var(--text); font-weight: 600; }
+  .story-card blockquote { border-left: 3px solid var(--cyan); padding-left: 16px; margin: 16px 0; font-style: italic; color: var(--cyan); font-size: 15px; line-height: 1.6; }
+
+  .analogy-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+  .analogy-box .analogy-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--yellow); margin-bottom: 10px; }
+  .analogy-box .analogy-row { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 10px; font-size: 13px; }
+  .analogy-box .analogy-row:last-child { margin-bottom: 0; }
+  .analogy-box .left { color: var(--text-dim); min-width: 160px; font-style: italic; }
+  .analogy-box .right { color: var(--text); }
+  .analogy-box .arrow { color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+  .concept-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+  .concept-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+  .concept-card .cicon { font-size: 22px; margin-bottom: 10px; }
+  .concept-card h4 { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .concept-card p { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+
+  .ingame-box { background: var(--green-dim); border: 1px solid var(--green); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; }
+  .ingame-box .label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--green); margin-bottom: 10px; }
+  .ingame-box p { font-size: 13px; color: #c9d1d9; line-height: 1.7; }
+
+  .principle-box { background: var(--bg3); border: 1px dashed var(--purple); border-radius: 10px; padding: 18px 20px; margin-bottom: 20px; text-align: center; }
+  .principle-box p { font-size: 15px; font-weight: 700; color: var(--purple); line-height: 1.5; }
+  .principle-box small { font-size: 12px; color: var(--text-dim); display: block; margin-top: 6px; }
+
+  .mistake-list { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+  .mistake-list h4 { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 14px; }
+  .mistake-item { display: flex; gap: 12px; margin-bottom: 12px; font-size: 13px; }
+  .mistake-item:last-child { margin-bottom: 0; }
+  .mistake-item .mi-bad { color: var(--red); min-width: 18px; }
+  .mistake-item .mi-good { color: var(--green); min-width: 18px; display: block; margin-top: 4px; }
+  .mistake-item .texts { color: var(--text-dim); line-height: 1.6; }
+  .mistake-item .texts .good { color: var(--green); display: block; margin-top: 2px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+    .missions-grid { grid-template-columns: repeat(2, 1fr); }
+    .scoring-grid { grid-template-columns: 1fr; }
+    .pillar-breakdown { grid-template-columns: repeat(2, 1fr); }
+    .hero h1 { font-size: 32px; }
+    .campaign-bar { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== HOME SCREEN ===================== -->
+<div id="screen-home" class="screen active">
+  <div class="container" style="display:flex;flex-direction:column;align-items:center;">
+    <div class="hero">
+      <div class="tagline">SOLO TRAINING SIMULATION</div>
+      <h1>Solo <span class="accent">Agent</span> Ops</h1>
+      <p>Train your operational reasoning with 20 missions across 4 difficulty levels. Master Decision Trees, Phase Gates, Validators, and Session Continuity.</p>
+    </div>
+
+    <div class="pillars-grid" style="width:100%;">
+      <div class="pillar-card">
+        <div class="icon">🌳</div>
+        <h3>Decision Trees</h3>
+        <p>Classify task complexity and choose the right workflow path.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="icon">🚪</div>
+        <h3>Phase Gates</h3>
+        <p>Verify checkpoints before advancing to the next stage.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="icon">✅</div>
+        <h3>Validators</h3>
+        <p>Prove your work meets objective quality standards.</p>
+      </div>
+      <div class="pillar-card">
+        <div class="icon">📝</div>
+        <h3>Session Continuity</h3>
+        <p>Write handoffs so the next agent can resume seamlessly.</p>
+      </div>
+    </div>
+
+    <div class="how-to" style="width:100%;">
+      <h3>HOW TO PLAY — 7-STEP ROUND LOOP</h3>
+      <div class="steps-row">
+        <div class="step-pill"><span class="num">1</span> Read Mission</div>
+        <div class="step-pill"><span class="num">2</span> Classify Complexity</div>
+        <div class="step-pill"><span class="num">3</span> Choose Workflow</div>
+        <div class="step-pill"><span class="num">4</span> Verify Gates</div>
+        <div class="step-pill"><span class="num">5</span> Plan Execution</div>
+        <div class="step-pill"><span class="num">6</span> Validate Work</div>
+        <div class="step-pill"><span class="num">7</span> Write Handoff</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <button class="btn-primary" onclick="goTo('hub')">▶ Start Playing</button>
+      <button class="btn-secondary" onclick="goTo('learn')" style="border-color:var(--purple);color:var(--purple);">📚 Academia</button>
+      <button class="btn-secondary" onclick="goTo('rules')">Rules & Scoring</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== MISSION HUB ===================== -->
+<div id="screen-hub" class="screen">
+  <nav>
+    <div class="logo">Solo <span>Agent</span> Ops</div>
+    <div class="nav-right">
+      <div class="score-badge">Total: <span id="nav-score">0</span> / 240</div>
+      <button class="btn-nav" onclick="goTo('learn')" style="color:var(--purple);border-color:var(--purple)">📚 Academia</button>
+      <button class="btn-nav" onclick="goTo('rules')">Rules</button>
+      <button class="btn-nav" onclick="goTo('home')">Home</button>
+    </div>
+  </nav>
+  <div class="container-wide">
+    <div class="hub-header">
+      <h2>Mission Control</h2>
+      <p>Select a mission to begin. Complete all 20 to finish the campaign.</p>
+    </div>
+    <div class="campaign-bar">
+      <div class="campaign-stat"><div class="val" id="hub-total-score">0</div><div class="lbl">Total Score</div></div>
+      <div class="campaign-stat"><div class="val" id="hub-missions-done">0</div><div class="lbl">Missions Done</div></div>
+      <div class="campaign-stat"><div class="val" id="hub-avg">—</div><div class="lbl">Avg Score</div></div>
+      <div class="progress-bar-wrap">
+        <div class="lbl">Campaign Progress</div>
+        <div class="progress-bar"><div class="progress-bar-fill" id="hub-progress" style="width:0%"></div></div>
+      </div>
+      <button class="btn-secondary" onclick="goTo('summary')" id="hub-summary-btn" style="display:none">View Summary</button>
+    </div>
+    <div id="hub-missions-container"></div>
+  </div>
+</div>
+
+<!-- ===================== MISSION PLAYER ===================== -->
+<div id="screen-mission" class="screen">
+  <nav>
+    <div class="logo">Solo <span>Agent</span> Ops</div>
+    <div class="nav-right">
+      <div class="score-badge" id="mission-score-badge">Mission <span id="mission-num-nav">1</span> / 20</div>
+      <button class="btn-nav" onclick="confirmLeave()">← Hub</button>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="mission-header" id="mission-header-block"></div>
+    <div class="stepper" id="mission-stepper"></div>
+    <div id="mission-step-content"></div>
+    <div style="display:flex;gap:12px;justify-content:flex-end;align-items:center;" id="mission-nav-row">
+      <div class="timer-display">Elapsed: <span id="timer-display">00:00</span></div>
+      <button class="btn-secondary" onclick="prevStep()" id="btn-prev" style="display:none">← Back</button>
+      <button class="btn-primary" onclick="nextStep()" id="btn-next">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SCORING SCREEN ===================== -->
+<div id="screen-scoring" class="screen">
+  <nav>
+    <div class="logo">Solo <span>Agent</span> Ops</div>
+    <div class="nav-right">
+      <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="scoring-header">
+      <h2 id="scoring-title">Score This Round</h2>
+      <p style="color:var(--text-dim);margin-top:6px;" id="scoring-subtitle"></p>
+    </div>
+
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px;">
+      <h3 style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">YOUR RESPONSES SUMMARY</h3>
+      <div id="scoring-responses-summary"></div>
+    </div>
+
+    <div class="scoring-grid">
+      <div class="score-section positive">
+        <h3>✅ POINTS EARNED (+)</h3>
+        <div id="score-positives"></div>
+      </div>
+      <div class="score-section negative">
+        <h3>❌ POINTS DEDUCTED (−)</h3>
+        <div id="score-negatives"></div>
+      </div>
+    </div>
+
+    <div class="score-display">
+      <div>
+        <span class="total" id="score-total">0</span>
+        <span class="denom"> / 12</span>
+      </div>
+      <div class="grade" id="score-grade"></div>
+    </div>
+
+    <button class="show-ideal-btn" onclick="toggleIdeal()" id="ideal-toggle-btn">👁 Reveal Ideal Response</button>
+    <div class="ideal-response" id="ideal-response-block"></div>
+
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:8px;">
+      <button class="btn-secondary" onclick="goTo('hub')">← Back to Hub</button>
+      <button class="btn-primary" id="next-mission-btn" onclick="goNextMission()">Next Mission →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SUMMARY SCREEN ===================== -->
+<div id="screen-summary" class="screen">
+  <nav>
+    <div class="logo">Solo <span>Agent</span> Ops</div>
+    <div class="nav-right">
+      <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
+    </div>
+  </nav>
+  <div class="container">
+    <div class="summary-header">
+      <h1>Campaign Summary</h1>
+      <p id="summary-subtitle">Your operational performance across all missions.</p>
+    </div>
+    <div class="big-score" id="summary-total">0</div>
+    <div class="big-score-denom">out of 240 maximum points</div>
+    <div class="pillar-breakdown" id="summary-pillar-breakdown"></div>
+    <div class="missions-summary" id="summary-missions-table"></div>
+    <div style="text-align:center;margin-top:16px;">
+      <button class="btn-secondary" onclick="goTo('hub')">← Back to Hub</button>
+      <button class="btn-danger" onclick="resetGame()" style="margin-left:12px;">Reset Campaign</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== RULES SCREEN ===================== -->
+<div id="screen-rules" class="screen">
+  <nav>
+    <div class="logo">Solo <span>Agent</span> Ops</div>
+    <div class="nav-right">
+      <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
+      <button class="btn-nav" onclick="goTo('home')">Home</button>
+    </div>
+  </nav>
+  <div class="container">
+    <h2 style="margin-bottom:20px;">Rules & Scoring</h2>
+    <div class="rules-content">
+      <h3>🎮 HOW TO PLAY</h3>
+      <p>Each mission is played in 7 steps. Read the scenario, make your decisions, then score yourself honestly against the ideal response.</p>
+      <h3>📊 SCORING PER ROUND (Max 12 points)</h3>
+      <div class="score-row"><span class="pts pos">+2</span><span>Correct complexity classification (small / medium / large / complex)</span></div>
+      <div class="score-row"><span class="pts pos">+2</span><span>Right workflow choice (quick mode / spec brief / full pipeline)</span></div>
+      <div class="score-row"><span class="pts pos">+2</span><span>Identifying and respecting all phase gates</span></div>
+      <div class="score-row"><span class="pts pos">+2</span><span>Avoiding scope creep (no unnecessary additions)</span></div>
+      <div class="score-row"><span class="pts pos">+2</span><span>Passing all validator checks</span></div>
+      <div class="score-row"><span class="pts pos">+2</span><span>Clear, complete session continuity documentation</span></div>
+      <div class="score-row"><span class="pts neg">−2</span><span>Over-engineering or under-engineering the task</span></div>
+      <div class="score-row"><span class="pts neg">−3</span><span>Skipping or failing to verify critical phase gates</span></div>
+      <div class="score-row"><span class="pts neg">−3</span><span>Untracked scope expansion or hidden changes</span></div>
+      <div class="score-row"><span class="pts neg">−3</span><span>Poor or missing session continuity documentation</span></div>
+      <h3>📈 SCORE INTERPRETATION</h3>
+      <div class="score-row"><span class="pts pos">12</span><span>Expert agent — mastered this mission type</span></div>
+      <div class="score-row"><span class="pts pos">10–11</span><span>Strong execution — minor refinements needed</span></div>
+      <div class="score-row" style="color:var(--yellow)"><span class="pts" style="color:var(--yellow)">8–9</span><span>Acceptable — met core objectives</span></div>
+      <div class="score-row" style="color:var(--yellow)"><span class="pts" style="color:var(--yellow)">6–7</span><span>Needs work — missed key gates or validators</span></div>
+      <div class="score-row"><span class="pts neg">&lt;6</span><span>Study the ideal response — revisit this difficulty level</span></div>
+      <h3>🎯 THE FOUR PILLARS</h3>
+      <ul>
+        <li><strong>🌳 Decision Trees</strong> — Classify task complexity; choose quick mode, spec brief, or full pipeline.</li>
+        <li><strong>🚪 Phase Gates</strong> — List and verify all prerequisites before coding.</li>
+        <li><strong>✅ Validators</strong> — Prove work passes branch naming, commit format, tests, and quality checks.</li>
+        <li><strong>📝 Session Continuity</strong> — Write STATE.md-style handoffs with status, next steps, and blockers.</li>
+      </ul>
+      <h3>🏆 CAMPAIGN MASTERY</h3>
+      <div class="score-row"><span class="pts pos">200+</span><span>Master Agent — teach others or create custom missions</span></div>
+      <div class="score-row"><span class="pts pos">150–199</span><span>Strong with scope and gates — Level 4 missions await</span></div>
+      <div class="score-row" style="color:var(--yellow)"><span class="pts" style="color:var(--yellow)">90–149</span><span>Comfortable with basic workflows — try Level 3 missions</span></div>
+      <div class="score-row"><span class="pts neg">&lt;90</span><span>Learning the pillars — focus on early missions</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ACADEMIA SCREEN ===================== -->
+<div id="screen-learn" class="screen">
+  <nav>
+    <div class="logo">Solo <span>Agent</span> Ops</div>
+    <div class="nav-right">
+      <button class="btn-nav" onclick="goTo('hub')">← Hub</button>
+    </div>
+  </nav>
+
+  <div class="academia-hero">
+    <div style="display:inline-block;background:#1c2a3a;color:var(--cyan);border:1px solid var(--cyan);padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:14px;">ACADEMIA DO AGENTE</div>
+    <h2>Aprenda os 4 Pilares</h2>
+    <p>Conceitos explicados com analogias do dia a dia, histórias reais e exemplos práticos. Sem jargão. Sem complicação.</p>
+  </div>
+
+  <div class="pillar-tabs">
+    <button class="pillar-tab active" onclick="switchPillar('dt')">🌳 Decision Trees</button>
+    <button class="pillar-tab" onclick="switchPillar('pg')">🚪 Phase Gates</button>
+    <button class="pillar-tab" onclick="switchPillar('vl')">✅ Validators</button>
+    <button class="pillar-tab" onclick="switchPillar('sc')">📝 Session Continuity</button>
+  </div>
+
+  <div style="max-width:820px;margin:0 auto;padding:32px 24px;width:100%;">
+
+    <!-- ===== DECISION TREES ===== -->
+    <div class="pillar-content active" id="pillar-dt">
+      <div class="story-card">
+        <div class="story-eyebrow" style="color:var(--green);">🌳 Pilar 1 — Decision Trees</div>
+        <h3>O Médico de Plantão às 3h da Manhã</h3>
+        <p>Imagine um pronto-socorro às 3 da manhã. Três pacientes chegam ao mesmo tempo: alguém com uma picada de mosquito, outro com um corte no dedo, e um terceiro com dor no peito. O que o médico faz <span class="highlight">primeiro</span>?</p>
+        <p>Ele <span class="highlight">não trata ninguém ainda</span>. Ele <em>triagem</em>. Em 10 segundos, ele classifica cada caso por gravidade — e essa classificação determina tudo: qual equipe chama, quantos recursos aloca, com que urgência age.</p>
+        <p>Isso é exatamente o que uma <strong>Decision Tree</strong> faz no seu trabalho técnico. Antes de escrever uma linha de código, você para e pergunta: <em>"Qual é o peso real disso?"</em></p>
+        <blockquote>"Quem não triagem, opera no paciente errado com os recursos do paciente certo."</blockquote>
+        <p>Um typo numa label é uma picada de mosquito — resolve em 2 minutos com uma bandagem. Uma migração de OAuth em produção é uma cirurgia cardíaca — requer uma equipe, anestesia, e um plano de contingência. Tratar os dois com o mesmo processo é o erro mais comum de engenheiros iniciantes.</p>
+      </div>
+
+      <div class="analogy-box">
+        <div class="analogy-label">⚖️ A ANALOGIA COMPLETA</div>
+        <div class="analogy-row"><span class="left">Picada de mosquito</span><span class="arrow">→</span><span class="right"><strong>Small / Quick Mode</strong> — 1-2 arquivos, fix óbvio, risco zero. Resolve e segue.</span></div>
+        <div class="analogy-row"><span class="left">Corte que precisa de sutura</span><span class="arrow">→</span><span class="right"><strong>Medium / Spec Brief</strong> — 3-5 arquivos, escopo claro, validação padrão.</span></div>
+        <div class="analogy-row"><span class="left">Fratura exposta</span><span class="arrow">→</span><span class="right"><strong>Large / Full Pipeline</strong> — múltiplos componentes, precisa de aprovação e plano antes.</span></div>
+        <div class="analogy-row"><span class="left">Cirurgia cardíaca</span><span class="arrow">→</span><span class="right"><strong>Complex / Expert Route</strong> — arquitetura ambígua, risco alto, múltiplas sessões.</span></div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cicon">🔍</div>
+          <h4>Classifique PRIMEIRO</h4>
+          <p>A classificação não é uma formalidade. Ela é a decisão mais importante da tarefa — tudo o mais deriva dela.</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">⚠️</div>
+          <h4>O Perigo do Over-Engineering</h4>
+          <p>Usar Full Pipeline para corrigir um typo é como chamar um time de cirurgia para uma picada. Ineficiente e caro.</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">💣</div>
+          <h4>O Perigo do Under-Engineering</h4>
+          <p>Usar Quick Mode numa migração de banco de dados é pular a anestesia. A operação pode começar, mas acaba mal.</p>
+        </div>
+      </div>
+
+      <div class="mistake-list">
+        <h4>❌ Erros comuns → ✅ Como corrigir</h4>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> "Parece simples, vou no Quick Mode mesmo."</div>
+            <span class="texts"><span class="good">✓ Pergunte: Quantos arquivos? Tem risco de regressão? Precisa de aprovação? Só então classifique.</span></span>
+          </div>
+        </div>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> Classificar como "medium" quando é "small" para parecer mais importante.</div>
+            <span class="texts"><span class="good">✓ Seja honesto. Overhead desnecessário é desperdício real de tempo de todos.</span></span>
+          </div>
+        </div>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> Reclassificar no meio da tarefa sem documentar.</div>
+            <span class="texts"><span class="good">✓ Se a complexidade mudou, pause, re-classifique formalmente e registre o motivo.</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ingame-box">
+        <div class="label">🎮 NO JOGO</div>
+        <p>Nas Missões 1–5, você pratica identificar tarefas "small" e resistir à tentação de over-engineeringr. Nas Missões 16–20, você precisa reconhecer tarefas "complex" e saber que elas exigem múltiplas sessões. <strong>A classificação correta vale +2 pontos</strong> — mas classificar errado pode custar −2 ou cascatear erros que custam −3.</p>
+      </div>
+
+      <div class="principle-box">
+        <p>"A pergunta mais importante antes de qualquer tarefa não é <em>'como vou fazer?'</em> — é <em>'o que exatamente isso é?'</em>"</p>
+        <small>Princípio fundamental de Decision Trees</small>
+      </div>
+    </div>
+
+    <!-- ===== PHASE GATES ===== -->
+    <div class="pillar-content" id="pillar-pg">
+      <div class="story-card">
+        <div class="story-eyebrow" style="color:var(--purple);">🚪 Pilar 2 — Phase Gates</div>
+        <h3>Por Que Todo Piloto Usa um Checklist (Mesmo Tendo 20 Anos de Experiência)</h3>
+        <p>Em 1935, o Boeing Model 299 era o avião mais avançado já construído. No teste de voo oficial, ele decolou, subiu alguns metros — e caiu. Matou o piloto. A investigação descobriu algo surpreendente: o acidente não foi falha mecânica. O piloto experiente <span class="highlight">esqueceu de destravar os controles de voo</span> antes da decolagem.</p>
+        <p>A Boeing poderia ter perdido o contrato. Em vez disso, criou uma inovação que mudou a aviação para sempre: o <strong>checklist de pré-voo</strong>. Hoje, todo piloto — do iniciante ao veterano com 40 anos de voo — executa o mesmo checklist antes de cada decolagem.</p>
+        <blockquote>"Não é porque são esquecidos. É porque o custo de pular um gate a 10.000 metros é irreversível."</blockquote>
+        <p>Phase Gates são seu checklist de pré-voo. Antes de "decolar" (começar a codar), você verifica: o ticket existe? A spec está aprovada? As dependências estão prontas? Não por burocracia — mas porque o custo de descobrir um bloqueio no meio do código é dez vezes maior do que descobrir antes de começar.</p>
+      </div>
+
+      <div class="analogy-box">
+        <div class="analogy-label">✈️ O CHECKLIST DO PILOTO → GATES DO ENGENHEIRO</div>
+        <div class="analogy-row"><span class="left">Controles de voo destravados?</span><span class="arrow">→</span><span class="right"><strong>Branch criada com nome correto?</strong> (sem isso, não dá para mergear)</span></div>
+        <div class="analogy-row"><span class="left">Combustível suficiente?</span><span class="arrow">→</span><span class="right"><strong>Spec/design aprovada?</strong> (sem isso, você constrói a coisa errada)</span></div>
+        <div class="analogy-row"><span class="left">Clima favorável na rota?</span><span class="arrow">→</span><span class="right"><strong>Sem dependências bloqueantes?</strong> (sem isso, você para no meio)</span></div>
+        <div class="analogy-row"><span class="left">Torre de controle avisada?</span><span class="arrow">→</span><span class="right"><strong>Reviewer identificado?</strong> (sem isso, o código morre sem revisão)</span></div>
+        <div class="analogy-row"><span class="left">Plano de emergência?</span><span class="arrow">→</span><span class="right"><strong>Rollback documentado?</strong> (sem isso, um erro vira catástrofe)</span></div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cicon">🛑</div>
+          <h4>Gates são Permissões</h4>
+          <p>Um gate não é uma tarefa — é uma verificação. Você não "faz" o gate, você "passa" ou "bloqueia" nele.</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">🔄</div>
+          <h4>Gates em Quick Mode?</h4>
+          <p>Em Quick Mode, os gates são implícitos (branch correta, commit correto). Em Full Pipeline, são explícitos e documentados.</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">📋</div>
+          <h4>Pular é diferente de dispensar</h4>
+          <p>Você pode dispensar um gate (ex: "sem risco de dependência bloqueante"). Pular sem verificar é diferente — e perigoso.</p>
+        </div>
+      </div>
+
+      <div class="story-card" style="border-color: var(--yellow);">
+        <div class="story-eyebrow" style="color:var(--yellow);">📖 HISTÓRIA REAL (MUNDO DO SOFTWARE)</div>
+        <h3 style="font-size:16px;">O Deploy Sem Spec Aprovada</h3>
+        <p>Uma equipe recebeu um pedido verbal do CEO: "adiciona um campo de CPF no cadastro." Eram sexta às 16h. O dev foi direto ao código, sem ticket, sem spec, sem gate de "schema de banco de dados aprovado". Fez o deploy segunda-feira.</p>
+        <p>Na terça, a equipe de compliance descobriu que CPF precisava de criptografia específica por lei. O campo estava exposto em plain text em 3 tabelas. <span class="highlight">O custo do fix foi 6x maior do que o custo de ter aberto um ticket e esperado a spec.</span></p>
+        <p>O gate de "spec aprovada" teria capturado isso antes de uma linha ser escrita.</p>
+      </div>
+
+      <div class="ingame-box">
+        <div class="label">🎮 NO JOGO</div>
+        <p>Nas Missões 6, 7, 9, 13, 15 e 18, o desafio central é listar os gates corretos antes de executar. O jogo penaliza −3 pontos por "skipping critical gates" — a penalidade mais alta do jogo, refletindo o custo real de pular verificações essenciais.</p>
+      </div>
+
+      <div class="principle-box">
+        <p>"Um gate não atrasa o trabalho. Ele protege o trabalho que você já fez de ser jogado fora."</p>
+        <small>Princípio fundamental de Phase Gates</small>
+      </div>
+    </div>
+
+    <!-- ===== VALIDATORS ===== -->
+    <div class="pillar-content" id="pillar-vl">
+      <div class="story-card">
+        <div class="story-eyebrow" style="color:var(--green);">✅ Pilar 3 — Validators</div>
+        <h3>A Diferença Entre "Acho que Funciona" e "Eu Sei Que Funciona"</h3>
+        <p>Gordon Ramsay tem uma frase que ele repete obsessivamente na cozinha: <em>"Prove. Prove de novo. Prove antes de servir."</em> Não porque ele desconfia dos cozinheiros — mas porque a única forma de saber que um prato está pronto é <span class="highlight">colocar a colher e checar</span>.</p>
+        <p>A maioria dos engenheiros trabalha com um modelo mental diferente: "Eu escrevi o código, ele deve estar certo." Validators existem para transformar esse "deve estar" em "está comprovado".</p>
+        <blockquote>"Feito é diferente de verificado. Feito significa que você terminou. Verificado significa que você provou."</blockquote>
+        <p>Um validator é uma <strong>prova objetiva</strong>. Não uma opinião. Não um sentimento. Uma resposta binária: passou ou não passou. Testes verdes. Commit message no formato correto. Nenhum arquivo extra modificado. Headers verificados no browser. Esses são validators.</p>
+      </div>
+
+      <div class="analogy-box">
+        <div class="analogy-label">👨‍🍳 A COZINHA PROFISSIONAL → O CÓDIGO PROFISSIONAL</div>
+        <div class="analogy-row"><span class="left">Provar o sabor antes de servir</span><span class="arrow">→</span><span class="right"><strong>Rodar os testes antes de commitar</strong></span></div>
+        <div class="analogy-row"><span class="left">Checar temperatura interna da carne</span><span class="arrow">→</span><span class="right"><strong>Verificar headers/output com ferramentas reais</strong></span></div>
+        <div class="analogy-row"><span class="left">Mise en place (tudo no lugar)</span><span class="arrow">→</span><span class="right"><strong>Só arquivos previstos foram tocados</strong></span></div>
+        <div class="analogy-row"><span class="left">Etiqueta de alérgenos no prato</span><span class="arrow">→</span><span class="right"><strong>Commit message descritivo no formato certo</strong></span></div>
+        <div class="analogy-row"><span class="left">Nenhum prato vai frio para a mesa</span><span class="arrow">→</span><span class="right"><strong>Nenhum código vai ao PR sem testes passando</strong></span></div>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cicon">🧪</div>
+          <h4>Testes Automatizados</h4>
+          <p>O validator mais confiável. Se os testes passam, você tem uma prova repetível, não uma observação pontual.</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">📝</div>
+          <h4>Commit Message</h4>
+          <p>Formato: <code style="background:var(--bg);padding:2px 5px;border-radius:3px;font-size:11px;">tipo: escopo - descrição</code>. Um commit sem formato é ruído no histórico.</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">🔬</div>
+          <h4>Scope Check</h4>
+          <p>Quantos arquivos você tocou? Se são mais do que o planejado, você tem um problema de escopo disfarçado de progresso.</p>
+        </div>
+      </div>
+
+      <div class="story-card" style="border-color: var(--red);">
+        <div class="story-eyebrow" style="color:var(--red);">⚠️ QUANDO VALIDATORS SÃO IGNORADOS</div>
+        <h3 style="font-size:16px;">O "Funciona na Minha Máquina"</h3>
+        <p>Todo time de software já viveu isso: o dev testa localmente, diz "funcionou", abre o PR. O revisor aprova sem rodar. Vai para produção. Quebra.</p>
+        <p>Por quê? Porque "testei aqui" não é um validator. O validator correto seria: <span class="highlight">CI passou? Testes rodaram no ambiente limpo? Nenhuma variável de ambiente local foi vazada?</span></p>
+        <p>A diferença entre um engenheiro sênior e um júnior não é necessariamente a qualidade do código — é a consistência com que o sênior <span class="highlight">prova que o código funciona</span> antes de declarar que está pronto.</p>
+      </div>
+
+      <div class="mistake-list">
+        <h4>❌ Validators que parecem certos mas não são</h4>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> "Testei manualmente e funcionou."</div>
+            <span class="texts"><span class="good">✓ Testes manuais não são repetíveis. Escreva um teste automatizado ou pelo menos documente o procedimento exato.</span></span>
+          </div>
+        </div>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> "O PR foi aprovado, então está certo."</div>
+            <span class="texts"><span class="good">✓ Aprovação de PR é uma gate, não um validator. O validator é: testes verdes + sem regressões + critérios de aceite atendidos.</span></span>
+          </div>
+        </div>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> Commit: "fix" (sem mais detalhes).</div>
+            <span class="texts"><span class="good">✓ Commit: "fix: correct null reference in payment transaction ID assignment" — específico, rastreável, útil.</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ingame-box">
+        <div class="label">🎮 NO JOGO</div>
+        <p>Os validators aparecem em quase todas as missões. Nas Missões 2, 3, 5, 8, 10, 12 e 14, são o pilar principal. O jogo espera que você escreva o commit message real, liste o que foi testado, e confirme que nenhum arquivo extra foi tocado. <strong>Validator fraco = −3 pontos por "poor session continuity" ou −2 por trabalho não verificado.</strong></p>
+      </div>
+
+      <div class="principle-box">
+        <p>"Não declare vitória até poder provar vitória. 'Acho que funciona' não é uma entrega — é um risco não gerenciado."</p>
+        <small>Princípio fundamental de Validators</small>
+      </div>
+    </div>
+
+    <!-- ===== SESSION CONTINUITY ===== -->
+    <div class="pillar-content" id="pillar-sc">
+      <div class="story-card">
+        <div class="story-eyebrow" style="color:var(--orange);">📝 Pilar 4 — Session Continuity</div>
+        <h3>O Teste do Ônibus</h3>
+        <p>Aqui está uma pergunta desconfortável: <span class="highlight">se você for atropelado por um ônibus hoje, alguém consegue continuar seu trabalho amanhã?</span></p>
+        <p>Não estamos falando de morbidez — estamos falando de documentação de contexto. Um cirurgião termina uma operação às 2h da manhã e deixa <strong>prontuário detalhado</strong>: o que foi feito, o que foi encontrado, qual foi a decisão, quais são os próximos passos, o que monitorar. O próximo médico não começa do zero. Ele lê o prontuário e continua.</p>
+        <blockquote>"Código sem handoff é como uma operação sem prontuário. O próximo profissional opera às cegas."</blockquote>
+        <p>Session Continuity é a arte de deixar seu contexto de trabalho tão claro que <span class="highlight">qualquer pessoa do time consegue continuar exatamente de onde você parou</span> — inclusive você mesmo, depois de 2 semanas de férias.</p>
+      </div>
+
+      <div class="analogy-box">
+        <div class="analogy-label">🏥 O PRONTUÁRIO MÉDICO → O STATE.md</div>
+        <div class="analogy-row"><span class="left">O que foi feito na cirurgia</span><span class="arrow">→</span><span class="right"><strong>STATUS:</strong> o que foi implementado/resolvido nesta sessão</span></div>
+        <div class="analogy-row"><span class="left">Próximas consultas / procedimentos</span><span class="arrow">→</span><span class="right"><strong>NEXT STEPS:</strong> o que ainda precisa ser feito</span></div>
+        <div class="analogy-row"><span class="left">Complicações encontradas</span><span class="arrow">→</span><span class="right"><strong>BLOCKERS:</strong> o que está travado e por quê</span></div>
+        <div class="analogy-row"><span class="left">Por que escolhemos essa cirurgia</span><span class="arrow">→</span><span class="right"><strong>DECISIONS:</strong> racional das escolhas feitas</span></div>
+        <div class="analogy-row"><span class="left">Exames, histórico, links relevantes</span><span class="arrow">→</span><span class="right"><strong>CONTEXT:</strong> PRs, specs, branches, aprovações</span></div>
+      </div>
+
+      <div class="story-card" style="border-color: var(--orange);">
+        <div class="story-eyebrow" style="color:var(--orange);">📖 A CORRIDA DE REVEZAMENTO</div>
+        <h3 style="font-size:16px;">O Bastão Precisa Chegar Intacto</h3>
+        <p>Numa corrida de revezamento 4x100m, o resultado não depende só da velocidade de cada atleta — depende da <span class="highlight">qualidade da passagem do bastão</span>. Times que ganham individualmente perdem corridas por deixar o bastão cair na troca.</p>
+        <p>Projetos de software são corridas de revezamento. Você não trabalha sozinho o projeto inteiro. Alguém começou antes de você. Alguém continuará depois. A qualidade do seu "bastão" — seu handoff, sua documentação de sessão — determina se o time avança ou tropeça.</p>
+        <p>Um engenheiro que termina o dia sem escrever um STATE.md acabou de jogar o bastão no chão e foi embora. O próximo atleta chega, vê o bastão no chão, e passa os primeiros 30 minutos tentando entender o que aconteceu.</p>
+      </div>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="cicon">📍</div>
+          <h4>STATUS</h4>
+          <p>O que foi concluído nesta sessão. Específico. Não "trabalhei no componente" — mas "componente X criado, testes passando, PR aberto."</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">➡️</div>
+          <h4>NEXT STEPS</h4>
+          <p>O que vem depois, em ordem. O próximo engenheiro não deve precisar adivinhar — deve poder começar em 5 minutos.</p>
+        </div>
+        <div class="concept-card">
+          <div class="cicon">🧱</div>
+          <h4>BLOCKERS</h4>
+          <p>O que está travado e por quê. Se não há blockers, escreva "Nenhum." Silêncio sobre blockers é um blocker silencioso.</p>
+        </div>
+      </div>
+
+      <div class="mistake-list">
+        <h4>❌ Handoffs ruins → ✅ Handoffs que funcionam</h4>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> "Tá no PR, é só fazer o merge."</div>
+            <span class="texts"><span class="good">✓ "PR #142 aberto. Todos os testes passando. Revisor: João. Único blocker: aprovação do design para o ícone do botão (Slack thread: #design, 23/03)."</span></span>
+          </div>
+        </div>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> Não documentar a decisão de arquitetura que você tomou.</div>
+            <span class="texts"><span class="good">✓ "Escolhemos WebSocket (não SSE) porque o infrastructure team já tem suporte nativo. ADR documentado em /docs/adr-012.md."</span></span>
+          </div>
+        </div>
+        <div class="mistake-item">
+          <div>
+            <div><span class="mi-bad">✗</span> Handoff só de texto, sem links.</div>
+            <span class="texts"><span class="good">✓ Sempre inclua: branch name, PR link, ticket link, spec link. Context é tudo.</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ingame-box">
+        <div class="label">🎮 NO JOGO</div>
+        <p>O Step 7 de cada missão é sempre o handoff. Nas Missões 11, 16 e 19, Session Continuity é o pilar principal — a missão só faz sentido se você documenta o contexto corretamente. <strong>Um handoff fraco custa −3 pontos</strong>, a maior penalidade do jogo ao lado de "scope creep" e "pular gates críticos". É intencional: no trabalho real, contexto perdido custa dias, não horas.</p>
+      </div>
+
+      <div class="principle-box">
+        <p>"Escreva seu handoff como se você fosse demitido amanhã e se importasse com o time que fica."</p>
+        <small>Princípio fundamental de Session Continuity</small>
+      </div>
+    </div>
+
+  </div><!-- end container -->
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// MISSION DATA
+// ============================================================
+const MISSIONS = [
+  // LEVEL 1
+  {
+    id: 1, title: "The Obvious Typo", difficulty: 1, pillar: "Decision Trees",
+    scenario: "A user reports that the login form is displaying \"Pasword\" instead of \"Password\" in a label. The file is `src/components/LoginForm.jsx`. It's a one-line fix in a single, stable component. No other changes needed.",
+    hint: "Ask yourself: how many files? How risky? Does this need approval?",
+    gates: ["Check if the component is stable / no concurrent work", "Verify branch naming convention"],
+    ideal: {
+      classification: "Small — Single file, obvious fix, zero scope risk",
+      workflow: "Quick Mode — No spec needed, no gates required",
+      gates: "None required for quick mode — scope is trivial",
+      execution: "Fix typo in label text, verify component renders correctly, commit with message: \"fix: correct spelling in LoginForm label\"",
+      validators: "Commit message matches format, only LoginForm.jsx touched, no console warnings",
+      handoff: "Status: Typo fixed and committed. Next: Merge to main. Blockers: None. Decisions: Used quick mode because scope is trivial."
+    },
+    scoring: [
+      { text: "Correctly identified as 'small'", pts: 2 },
+      { text: "Selected Quick Mode (no unnecessary gates)", pts: 2 },
+      { text: "Recognized no gates needed", pts: 2 },
+      { text: "Made only the one-line change (no scope creep)", pts: 2 },
+      { text: "Commit message clean; single file only", pts: 2 },
+      { text: "Clear status and next action in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Chose 'medium' or added extra validation", pts: 2 },
+      { text: "Skipped commit message format check", pts: 3 }
+    ]
+  },
+  {
+    id: 2, title: "Console Warning in Prod", difficulty: 1, pillar: "Validators",
+    scenario: "Your monitoring tool alerts that `src/utils/dataFormatter.js` is logging a deprecation warning to console in production. A function call is deprecated. You need to replace it with the modern API. The fix is localized and low-risk.",
+    hint: "This is a validator-focused mission. What checks prove the fix is complete?",
+    gates: ["Confirm scope is contained to one utility file"],
+    ideal: {
+      classification: "Small — Single utility file, one function update, no component changes",
+      workflow: "Quick Mode — Self-contained fix",
+      gates: "None — scope is too small to require gates",
+      execution: "Identify deprecated function, replace with modern API equivalent, run unit tests on dataFormatter to confirm it still works",
+      validators: "Old function removed entirely, new function used, unit tests pass, console warning gone in test output. Commit: \"fix: replace deprecated API in dataFormatter\"",
+      handoff: "Status: Deprecated API replaced; tests passing. Next: Code review and merge. Blockers: None. Decisions: Quick mode justified by single-file scope."
+    },
+    scoring: [
+      { text: "Correctly identified as 'small'", pts: 2 },
+      { text: "Quick mode justified and executed", pts: 2 },
+      { text: "Correctly assumed no gates needed", pts: 2 },
+      { text: "Only modified the one function, no extras", pts: 2 },
+      { text: "Tests run; old API confirmed removed", pts: 2 },
+      { text: "Clear status and merge readiness in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Over-tested (added new tests beyond what was needed)", pts: 2 },
+      { text: "Failed to run validators before handoff", pts: 3 }
+    ]
+  },
+  {
+    id: 3, title: "Dependency Version Bump", difficulty: 1, pillar: "Validators",
+    scenario: "A security advisory requests that you update `lodash` from 4.17.19 to 4.17.21 in `package.json`. The change is in one file. Your team's CI already runs all tests automatically. No logic changes needed.",
+    hint: "CI is your validator here. Do you need to do manual testing?",
+    gates: ["Confirm CI runs tests automatically", "Verify no logic changes required"],
+    ideal: {
+      classification: "Small — Single-file change, no code logic changes",
+      workflow: "Quick Mode — Dependency updates are low-risk maintenance",
+      gates: "None required — CI gates are automatic",
+      execution: "Update version in package.json, let CI run its test suite automatically, monitor test results",
+      validators: "Version updated in lock file, all CI tests pass, no vulnerabilities in audit output. Commit: \"deps: update lodash to 4.17.21\"",
+      handoff: "Status: Dependency updated and CI tests passing. Next: Merge to main. Blockers: None. Decisions: Quick mode because it's a single-file, automated-verification change."
+    },
+    scoring: [
+      { text: "Correctly identified as 'small'", pts: 2 },
+      { text: "Quick mode appropriate for dependency updates", pts: 2 },
+      { text: "Correctly assumed CI gates are automatic", pts: 2 },
+      { text: "Only modified version; no refactoring", pts: 2 },
+      { text: "CI results confirmed green", pts: 2 },
+      { text: "Status clear; ready for merge", pts: 2 }
+    ],
+    deductions: [
+      { text: "Added manual testing beyond CI", pts: 2 },
+      { text: "Skipped waiting for CI validators", pts: 3 }
+    ]
+  },
+  {
+    id: 4, title: "Fix Button Color in Dark Mode", difficulty: 1, pillar: "Decision Trees",
+    scenario: "A design review flagged that the primary button color in dark mode fails WCAG AA contrast requirements. The fix is in `src/styles/darkMode.css`, changing one color variable. No component changes; no logic affected.",
+    hint: "Pure styling change. Which tool would you use to verify WCAG compliance?",
+    gates: ["Confirm change is CSS-only, no logic"],
+    ideal: {
+      classification: "Small — One CSS variable change, purely styling, no logic",
+      workflow: "Quick Mode — Single file, obvious fix path",
+      gates: "None required for styling-only changes",
+      execution: "Update the dark mode button color variable to a lighter shade, verify visually in both modes, run contrast checker to confirm WCAG AA compliance (≥4.5:1)",
+      validators: "Color variable updated, contrast checker confirms ≥4.5:1 ratio, no JavaScript changes, styling renders correctly on sample components",
+      handoff: "Status: Button contrast fixed in dark mode CSS. Next: QA visual check. Blockers: None. Decisions: Quick mode; pure styling change with no scope risk."
+    },
+    scoring: [
+      { text: "Correctly identified as 'small'", pts: 2 },
+      { text: "Quick mode; no unnecessary process added", pts: 2 },
+      { text: "Recognized styling doesn't require approval gates", pts: 2 },
+      { text: "Only the one color variable touched", pts: 2 },
+      { text: "Contrast checker used; WCAG compliance verified", pts: 2 },
+      { text: "Clear status and next step in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Added browser testing across 10+ browsers (overkill)", pts: 2 },
+      { text: "Changed the button component itself (scope creep)", pts: 3 }
+    ]
+  },
+  {
+    id: 5, title: "Add Missing Alt Text", difficulty: 1, pillar: "Validators",
+    scenario: "An accessibility audit found that the hero image in `src/components/HeroSection.jsx` is missing an `alt` attribute. This is a quick accessibility fix. The image displays the company logo; alt text should be \"Company logo\" or similar.",
+    hint: "Alt text is a single attribute. What tool confirms accessibility compliance?",
+    gates: ["Confirm alt text wording is appropriate"],
+    ideal: {
+      classification: "Small — Single component, one line fix (alt attribute)",
+      workflow: "Quick Mode — Accessibility fix, low risk",
+      gates: "None required",
+      execution: "Add appropriate alt attribute: `alt=\"Company logo\"`, test with accessibility inspector to confirm ARIA is correct, verify no console warnings",
+      validators: "Alt text present and descriptive, accessibility inspector shows no errors. Commit: \"a11y: add alt text to hero image\". No other changes",
+      handoff: "Status: Alt text added to HeroSection. Next: Merge after code review. Blockers: None. Decisions: Quick mode; single accessibility fix."
+    },
+    scoring: [
+      { text: "Correctly identified as 'small'", pts: 2 },
+      { text: "Quick mode appropriate", pts: 2 },
+      { text: "No gates needed for simple accessibility fixes", pts: 2 },
+      { text: "Only the alt attribute added — nothing else", pts: 2 },
+      { text: "Accessibility inspector confirms clean", pts: 2 },
+      { text: "Clear status and next step in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Refactored the entire component (scope creep)", pts: 2 },
+      { text: "Failed to verify with an accessibility tool", pts: 3 }
+    ]
+  },
+  // LEVEL 2
+  {
+    id: 6, title: "Add a Settings Panel", difficulty: 2, pillar: "Phase Gates",
+    scenario: "A ticket requests a new user settings panel with: dark mode toggle, notification preferences (email, SMS), and language selector. You need to add this UI to `src/components/SettingsPanel/` (a new folder). The design is approved. The ticket is linked to an epic.",
+    hint: "This is a new component with a defined scope. Which gates must you verify before coding?",
+    gates: ["Ticket linked (epic reference provided)", "Design approved (stated in ticket)", "Acceptance criteria clear (3 toggles specified)", "No blocking dependencies", "Test strategy defined (unit tests on toggle logic)"],
+    ideal: {
+      classification: "Medium — New component, 3 files, defined scope",
+      workflow: "Spec Brief — Design approved, scope is clear, no architectural risk",
+      gates: "✓ Ticket linked ✓ Design approved ✓ Acceptance criteria clear (3 toggles) ✓ No blocking dependencies ✓ Test strategy defined",
+      execution: "Create SettingsPanel folder with component, styles, and tests. Implement three toggles with state management (React hooks). Add to navigation. Pass all unit tests.",
+      validators: "All three toggles functional; state persists; tests cover toggle logic; CSS passes linter. Commit: \"feat: add settings panel with toggles\"",
+      handoff: "Status: SettingsPanel created with dark mode, notification, and language toggles. Tests passing. Next: Code review and UX testing. Blockers: Backend integration for preferences storage pending."
+    },
+    scoring: [
+      { text: "Correctly identified as 'medium'", pts: 2 },
+      { text: "Spec Brief chosen (design approved, scope clear)", pts: 2 },
+      { text: "Listed and verified all gates (ticket, design, criteria, dependencies)", pts: 2 },
+      { text: "Stayed within 3 specified toggles; no extras", pts: 2 },
+      { text: "Tests created; all pass; toggles work", pts: 2 },
+      { text: "Clear status, next steps, and known blockers in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Added extra features (e.g., theme preview) — scope creep", pts: 2 },
+      { text: "Skipped verification of design approval or acceptance criteria", pts: 3 }
+    ]
+  },
+  {
+    id: 7, title: "Create User Search API Endpoint", difficulty: 2, pillar: "Phase Gates",
+    scenario: "Your backend ticket asks you to create a `GET /api/users/search?q=term` endpoint. The spec is documented: returns JSON list of users matching name/email. A database index already exists. No schema changes needed.",
+    hint: "The spec is defined. What security concern must you validate before calling this done?",
+    gates: ["Ticket has acceptance criteria (response format specified)", "Database index exists", "Endpoint path aligns with API conventions", "Authentication requirement defined", "Rate limiting scope decided"],
+    ideal: {
+      classification: "Medium — New endpoint, existing schema, no architectural changes",
+      workflow: "Spec Brief — Spec is clear, no DB migration needed, dependencies already met",
+      gates: "✓ Acceptance criteria defined ✓ Database index exists ✓ API path convention correct ✓ Auth requirement defined ✓ Rate limiting scope decided",
+      execution: "Add GET route handler in `src/routes/userRoutes.js`, query users with search term using parameterized queries, validate/sanitize input, return JSON matching spec, add error handling",
+      validators: "Endpoint responds with correct JSON, search returns only matching users, SQL injection prevented (parameterized queries), tests cover success and error cases. Commit: \"feat: add user search endpoint\"",
+      handoff: "Status: User search endpoint implemented at GET /api/users/search. Tests passing. Next: Code review and integration test with frontend. Blockers: None."
+    },
+    scoring: [
+      { text: "Correctly identified as 'medium'", pts: 2 },
+      { text: "Spec Brief (no DB changes, clear spec)", pts: 2 },
+      { text: "Verified spec, database setup, auth requirements", pts: 2 },
+      { text: "Only implemented the search endpoint; no extras", pts: 2 },
+      { text: "Response format correct; SQL injection prevented; tests pass", pts: 2 },
+      { text: "Clear status, next steps (integration test)", pts: 2 }
+    ],
+    deductions: [
+      { text: "Added pagination (not in spec) — scope creep", pts: 2 },
+      { text: "Skipped input sanitization / SQL injection checks", pts: 3 }
+    ]
+  },
+  {
+    id: 8, title: "Update Form Validation Rules", difficulty: 2, pillar: "Validators",
+    scenario: "A product update changes password validation: minimum length is now 12 characters (was 8), and a special character is now required. Update `src/utils/passwordValidator.js` and its tests. The form component itself doesn't change; it calls the validator.",
+    hint: "What backward compatibility concern should you flag, even if it's out of scope for this task?",
+    gates: ["Spec is clear (12 chars + special char defined)", "Backward compatibility plan for existing passwords", "Testing scope defined", "UI error messaging aligned"],
+    ideal: {
+      classification: "Medium — Single utility file, tests update, clear scope",
+      workflow: "Spec Brief — Requirements explicit, no component changes",
+      gates: "✓ Spec is clear ✓ Backward compatibility noted ✓ Testing scope defined ✓ UI error messages aligned",
+      execution: "Update passwordValidator.js with new rules (length check and regex for special char), update test expectations, verify form still displays correct error messages",
+      validators: "All validator tests pass with new rules, form error messages reflect requirements, edge cases tested (exactly 12 chars, no special char boundary). Commit: \"feat: update password validation rules\"",
+      handoff: "Status: Password validator updated to enforce 12 characters and special character requirement. Tests passing. Next: QA review of error messages. Blockers: None. Note: Database migration for legacy passwords may need separate task."
+    },
+    scoring: [
+      { text: "Correctly identified as 'medium'", pts: 2 },
+      { text: "Spec Brief (clear requirements, no components touched)", pts: 2 },
+      { text: "Verified spec and testing scope", pts: 2 },
+      { text: "Only validator and its tests; form component untouched", pts: 2 },
+      { text: "Tests updated and passing; edge cases covered", pts: 2 },
+      { text: "Clear scope and identified future blocking work (legacy passwords)", pts: 2 }
+    ],
+    deductions: [
+      { text: "Also modified the form component (out of scope)", pts: 2 },
+      { text: "Didn't test edge cases (boundary conditions)", pts: 3 }
+    ]
+  },
+  {
+    id: 9, title: "Enable Multi-Language Support", difficulty: 2, pillar: "Phase Gates",
+    scenario: "Your i18n library is already configured. You need to mark all user-facing text in `src/components/Dashboard.jsx` for translation using the `t()` function. Translation files already exist for Spanish and French. You'll add the new keys.",
+    hint: "The framework exists. Which gates confirm you can proceed without creating a mess?",
+    gates: ["i18n library configured and working", "Translation files exist for target languages", "Naming convention for translation keys defined", "Dashboard component is stable (no concurrent changes)"],
+    ideal: {
+      classification: "Medium — One component, i18n library ready, clear scope",
+      workflow: "Spec Brief — Setup already in place, just apply existing pattern",
+      gates: "✓ i18n library configured ✓ Translation files exist ✓ Key naming convention defined ✓ Dashboard component stable",
+      execution: "Identify all user-facing strings in Dashboard.jsx, wrap each with `t()` using consistent key naming (e.g., \"dashboard.welcome\"), verify keys don't already exist, add keys to Spanish and French files",
+      validators: "All strings wrapped with `t()`, keys present in all language files, no missing translation warnings, tests verify no untranslated text. Commit: \"i18n: add multi-language support to Dashboard\"",
+      handoff: "Status: Dashboard marked for translation; keys added to all language files. Tests passing. Next: Translation team fills in Spanish/French content. Blockers: None."
+    },
+    scoring: [
+      { text: "Correctly identified as 'medium'", pts: 2 },
+      { text: "Spec Brief (framework ready, pattern clear)", pts: 2 },
+      { text: "Verified library setup and translation file existence", pts: 2 },
+      { text: "Only Dashboard marked; no other components refactored", pts: 2 },
+      { text: "No missing translation warnings; keys in all files", pts: 2 },
+      { text: "Clear next step (translator work); dependencies noted", pts: 2 }
+    ],
+    deductions: [
+      { text: "Refactored the component structure while adding i18n", pts: 2 },
+      { text: "Didn't verify keys exist in ALL language files", pts: 3 }
+    ]
+  },
+  {
+    id: 10, title: "Add Caching Headers to Static Assets", difficulty: 2, pillar: "Validators",
+    scenario: "Performance analysis shows static assets aren't cached. Add cache headers to `src/server.js` middleware: `Cache-Control: max-age=31536000` for immutable assets (versioned filenames), `max-age=3600` for HTML. No code refactoring; pure configuration.",
+    hint: "How do you prove the headers are actually being sent? What tool verifies this?",
+    gates: ["Cache strategy documented (headers specified)", "Assets are already version-stamped", "No active CDN conflicts", "Test environment can validate headers"],
+    ideal: {
+      classification: "Medium — Middleware config, clear caching rules, no application logic change",
+      workflow: "Spec Brief — Performance rules specified, no architectural risk",
+      gates: "✓ Cache strategy exists ✓ Assets version-stamped ✓ No CDN conflicts ✓ Headers testable in dev tools",
+      execution: "Add middleware to server.js that sets Cache-Control headers based on file type/path, test with curl or browser dev tools to verify headers are returned correctly",
+      validators: "Static assets have `max-age=31536000`, HTML has `max-age=3600`, headers verified in dev tools, no cache conflicts. Commit: \"perf: add cache-control headers for static assets\"",
+      handoff: "Status: Cache-Control headers configured in server middleware. Headers verified via browser dev tools. Next: Monitor cache hit rates in production. Blockers: None."
+    },
+    scoring: [
+      { text: "Correctly identified as 'medium'", pts: 2 },
+      { text: "Spec Brief (rules given, no architecture change)", pts: 2 },
+      { text: "Verified asset versioning and testing approach", pts: 2 },
+      { text: "Only middleware changed; no refactoring", pts: 2 },
+      { text: "Headers verified with dev tools; correct values", pts: 2 },
+      { text: "Clear status and production monitoring plan", pts: 2 }
+    ],
+    deductions: [
+      { text: "Added compression middleware (out of scope)", pts: 2 },
+      { text: "Didn't verify headers with actual tools", pts: 3 }
+    ]
+  },
+  // LEVEL 3
+  {
+    id: 11, title: "Implement User Profile Editor", difficulty: 3, pillar: "Session Continuity",
+    scenario: "A stakeholder requests: \"Users should be able to edit their profile (name, email, avatar, bio).\" The request is vague. No design spec. No database schema defined for avatar storage. No clarity on file size limits. The product brief mentions profiles are planned but no acceptance criteria yet.",
+    hint: "This is an ambiguous request. The correct move may NOT be to start coding.",
+    gates: ["Product spec written (fields, avatar storage strategy)", "Design mockups approved", "Avatar upload constraints defined", "Database schema changes approved", "API design reviewed", "Security review for file uploads"],
+    ideal: {
+      classification: "Complex — Ambiguous scope, architectural unknowns (avatar storage), no spec",
+      workflow: "Full Pipeline — Requires upfront design, approval gates, clear boundaries before coding",
+      gates: "✓ Spec must be written first ✓ Design mockups needed ✓ Avatar storage decision needed ✓ DB schema changes need approval ✓ Security review for file uploads",
+      execution: "DO NOT CODE YET. Schedule spec-writing session with product. Document fields, avatar storage (S3/Local/CDN), file limits, privacy rules. Get design mockups. Once all gates pass, plan implementation in phases.",
+      validators: "Spec document complete with all decisions, design approved by stakeholders, no code written until gates are clear",
+      handoff: "Status: Profile editor requirements clarified. Spec complete. Design approved. Next: Technical design review for avatar storage and DB migration. Blockers: Avatar storage decision pending (S3 vs. local vs. CDN)."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Chose Full Pipeline (ambiguity demands gates)", pts: 2 },
+      { text: "Listed critical blockers (spec, design, avatar strategy, schema)", pts: 2 },
+      { text: "Stopped short of coding; focused on clarification", pts: 2 },
+      { text: "Spec document completed and approved before code", pts: 2 },
+      { text: "Documented blockers and decisions clearly; next task identified", pts: 2 }
+    ],
+    deductions: [
+      { text: "Started coding before gates were clear", pts: 2 },
+      { text: "Assumed avatar storage strategy without approval", pts: 3 }
+    ]
+  },
+  {
+    id: 12, title: "Refactor Navigation Component", difficulty: 3, pillar: "Validators",
+    scenario: "A code review flagged that `src/components/Navigation.jsx` is 450 lines and hard to maintain. It handles mobile/desktop logic, dropdown menus, and active link highlighting all in one file. You're asked to \"improve the code\" as part of general tech debt. No ticket. No design changes.",
+    hint: "The component works fine. What risk does refactoring introduce, and how do you mitigate it?",
+    gates: ["Acceptance criteria defined (file size limits, component breakdown plan)", "Regression test suite exists", "Approval from code owner required", "No concurrent feature development on Navigation", "Timeline agreed"],
+    ideal: {
+      classification: "Large — 450-line component, multi-concern refactoring, regression risk",
+      workflow: "Full Pipeline — Refactoring needs scope gates, clear tests before and after",
+      gates: "✓ Acceptance criteria defined ✓ Regression tests exist ✓ Code owner approval ✓ No concurrent changes ✓ Timeline agreed",
+      execution: "First, add comprehensive tests to existing Navigation (mobile/desktop, dropdowns, active link). Then extract sub-components (NavBar, NavDropdown, MobileMenu) incrementally, testing after each extraction.",
+      validators: "Test coverage ≥90%, visual regression tests pass, all interactions work identically as before, each file now <150 lines. Commits: \"refactor: extract NavBar component from Navigation\", etc.",
+      handoff: "Status: Navigation refactored into NavBar, NavDropdown, MobileMenu. All tests passing; visual regression clean. Next: Code review and merge. Blockers: None. Decisions: Full Pipeline due to regression risk. Added tests first (test-driven refactoring)."
+    },
+    scoring: [
+      { text: "Correctly identified as 'large' (refactoring, regression risk)", pts: 2 },
+      { text: "Full Pipeline (test gates required for refactoring)", pts: 2 },
+      { text: "Required tests, approval, no concurrent changes", pts: 2 },
+      { text: "Focused refactoring only; no feature additions", pts: 2 },
+      { text: "Tests created first; regression verified; file sizes reduced", pts: 2 },
+      { text: "Clear strategy and no regressions noted in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Refactored without writing tests first", pts: 2 },
+      { text: "Added new features during refactoring (scope creep)", pts: 3 }
+    ]
+  },
+  {
+    id: 13, title: "Add Real-Time Notifications", difficulty: 3, pillar: "Phase Gates",
+    scenario: "Product wants real-time notifications when users receive messages. Currently polling every 30 seconds. A stakeholder suggests WebSockets; another suggests Server-Sent Events. No architecture decision made. No spec. Multiple backends involved (notification service, user service, websocket infrastructure).",
+    hint: "Two different stakeholders disagree on the approach. What must happen BEFORE any code is written?",
+    gates: ["Architecture Decision Record (WebSocket vs. SSE tradeoffs)", "Notification service API spec approved", "Infrastructure team approves chosen approach", "Frontend design for notification UI", "Scalability and load testing plan", "Deployment coordination plan"],
+    ideal: {
+      classification: "Complex — Multi-service architecture, technology choice unclear, team alignment needed",
+      workflow: "Full Pipeline — Requires architecture decision gate, cross-team approval",
+      gates: "✓ ADR written (WebSocket vs. SSE vs. polling) ✓ API spec approved ✓ Infrastructure sign-off ✓ Frontend design ✓ Scalability plan ✓ Deployment coordination",
+      execution: "DO NOT CODE YET. Write Architecture Decision Record (ADR) comparing WebSockets vs. SSE. Present to team. Once choice is made, design the notification service API. Get infrastructure approval. Then split work: backend (notification service) and frontend (UI + connection logic).",
+      validators: "ADR complete with decision and tradeoffs, all stakeholders aligned, API spec approved, no code written until gates pass",
+      handoff: "Status: Real-time notification architecture decided. ADR documented. API spec approved. Next: Backend team implements notification service; frontend team builds UI. Blockers: Infrastructure WebSocket support verification pending."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Full Pipeline (architecture decision needed)", pts: 2 },
+      { text: "Listed architecture, infrastructure, design approval gates", pts: 2 },
+      { text: "Blocked implementation until gates passed; did planning instead", pts: 2 },
+      { text: "ADR and API spec completed before code", pts: 2 },
+      { text: "Documented decision, cross-team alignment, clear blockers", pts: 2 }
+    ],
+    deductions: [
+      { text: "Proposed WebSocket without comparing SSE options", pts: 2 },
+      { text: "Started backend work before architecture decision", pts: 3 }
+    ]
+  },
+  {
+    id: 14, title: "Fix Performance Regression", difficulty: 3, pillar: "Validators",
+    scenario: "Monitoring shows the product list page (`src/pages/ProductList.jsx`) loads in 2.3 seconds (target: <1 second). A recent commit added product image thumbnails. The list shows 50 products per page, each with a small image. No profiling data yet.",
+    hint: "You don't know the root cause yet. What must you do BEFORE choosing a fix?",
+    gates: ["Performance baseline measured (current: 2.3s, target: <1s)", "Root cause identified (image loading? rendering? API?)", "Fix strategy approved", "Performance test suite set up", "Regression test defined"],
+    ideal: {
+      classification: "Large — Performance diagnosis needed, potential multi-file changes",
+      workflow: "Full Pipeline — Needs profiling, fix validation, performance gate before merge",
+      gates: "✓ Baseline measured ✓ Root cause identified via profiling ✓ Fix strategy approved ✓ Performance test added ✓ Regression test planned",
+      execution: "Use Chrome DevTools Performance tab to profile page load. Identify bottleneck (likely image loading or re-renders). Options: lazy-load images, optimize image format/size, virtual scrolling. Measure impact of each fix.",
+      validators: "Profiling data collected and documented, fix reduces load time to <1s, performance test added, no visual regression. Commit: \"perf: optimize product list load time via [method]\"",
+      handoff: "Status: Product list performance root cause identified (image loading was bottleneck). Fixed via lazy-loading. Load time now <1s. Performance tests added. Next: Code review and production monitoring. Decisions: Chose lazy-loading for fastest impact. Profiling data attached to PR."
+    },
+    scoring: [
+      { text: "Correctly identified as 'large'", pts: 2 },
+      { text: "Full Pipeline (profiling and validation gates)", pts: 2 },
+      { text: "Profiled first; set target; approved fix strategy", pts: 2 },
+      { text: "Only optimized product list; didn't add features", pts: 2 },
+      { text: "Profiling data documented; load time target met; tests added", pts: 2 },
+      { text: "Clear root cause and fix strategy documented in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Optimized images without profiling first (guessing)", pts: 2 },
+      { text: "Didn't measure impact or set performance test", pts: 3 }
+    ]
+  },
+  {
+    id: 15, title: "Add Role-Based Access Control", difficulty: 3, pillar: "Phase Gates",
+    scenario: "A security audit flagged the app lacks role-based access control (RBAC). Admins, users, and guests should have different permissions. Currently no role system exists. Request is open-ended: \"Implement RBAC.\" Multiple services need updates (auth, user profiles, all API endpoints). No design. No security review.",
+    hint: "This touches security across multiple services. Who must approve before you write a single line?",
+    gates: ["Security team approves RBAC design", "Database schema for roles/permissions designed", "Auth service API spec'd", "Audit logging plan defined", "Backward compatibility plan (existing users get default role)", "Testing strategy (permission matrix tests)", "Deployment plan (no downtime)"],
+    ideal: {
+      classification: "Complex — System-wide change, security implications, multi-service coordination",
+      workflow: "Full Pipeline — Requires security review, architecture decision, comprehensive testing",
+      gates: "✓ Security team approves design ✓ DB schema designed ✓ Auth API spec'd ✓ Audit logging planned ✓ Backward compatibility plan ✓ Permission matrix tests ✓ Deployment plan",
+      execution: "DO NOT CODE YET. Work with security team to document RBAC model. Design role-permission matrix. Plan DB migration. Spec auth service changes. Then implement incrementally: (1) roles table, (2) role assignment API, (3) permission checks, (4) thorough testing.",
+      validators: "Security approval document, role-permission matrix created, DB migration script tested, API endpoints enforce roles correctly, audit logging records role changes, tests cover all combinations",
+      handoff: "Status: RBAC design approved by security team. Role-permission matrix documented. DB schema designed. Next: DB migration and auth service updates. Blockers: Existing users need default role assignment in migration."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Full Pipeline (security gates required)", pts: 2 },
+      { text: "Listed security review, design approval, schema gate", pts: 2 },
+      { text: "Stopped before building; gathered requirements instead", pts: 2 },
+      { text: "Security approval and matrix created before code", pts: 2 },
+      { text: "Clear security decision and backward compatibility noted", pts: 2 }
+    ],
+    deductions: [
+      { text: "Skipped security team approval", pts: 2 },
+      { text: "Started implementing roles without design document", pts: 3 }
+    ]
+  },
+  // LEVEL 4
+  {
+    id: 16, title: "OAuth Migration (Multi-Session)", difficulty: 4, pillar: "Session Continuity",
+    scenario: "Your team is moving from username/password to OAuth (Google Sign-In). This affects: login flow, user database, sessions, API auth, frontend UI, and existing users. The migration must happen without downtime. Some users will migrate immediately; others gradually. No clear plan. Multiple services involved.",
+    hint: "This is too large for one session. What must your handoff document contain for the next engineer?",
+    gates: ["Migration plan document (phased approach, rollback)", "DB schema for OAuth verified", "Session management updated for dual auth", "Security review of OAuth flow", "User communication plan", "Rollback plan documented", "Test plan for both auth methods"],
+    ideal: {
+      classification: "Complex — Multi-service, users affected, requires phased approach, rollback plan needed",
+      workflow: "Full Pipeline with multi-session plan — Too large for one session; needs handoff strategy",
+      gates: "✓ Migration plan document ✓ DB schema for OAuth ✓ Dual auth session support ✓ Security review ✓ User communication plan ✓ Rollback plan ✓ Test plan",
+      execution: "Session 1 (Planning): Create migration plan — Week 1: add OAuth alongside password. Week 2: opt-in migration. Week 3: deprecate password. Design DB migration (add oauth_provider, oauth_id columns; keep password nullable). Session 2 (Implementation): Implement dual-auth code path, update sessions, test both paths.",
+      validators: "Session 1: Migration plan approved, DB schema reviewed, rollback steps documented. Session 2: OAuth flow tested and secure, DB migration runs without data loss, old and new login paths work.",
+      handoff: "STATUS: OAuth migration plan complete and approved. DB schema designed. NEXT: DB migration and dual-auth code path implementation. BLOCKERS: None. DECISIONS: Phased migration for rollback safety. Kept password auth during transition. Coordinated with three teams."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Full Pipeline with multi-session handoff plan", pts: 2 },
+      { text: "Verified security, plan approval, rollback documentation", pts: 2 },
+      { text: "Broke into two sessions; clear session boundaries", pts: 2 },
+      { text: "Migration plan approved; database design reviewed", pts: 2 },
+      { text: "Clear multi-session handoff with blockers and rollback", pts: 2 }
+    ],
+    deductions: [
+      { text: "Tried to do everything in one session", pts: 2 },
+      { text: "Skipped rollback planning or security review", pts: 3 }
+    ]
+  },
+  {
+    id: 17, title: "Debug Intermittent Payment Crash", difficulty: 4, pillar: "Validators",
+    scenario: "Monitoring shows intermittent crashes in `src/services/paymentService.js` ~1% of the time. Error: \"Transaction failed: null reference.\" Affects real money. Three developers have investigated with no consensus. Hard to reproduce in local environment.",
+    hint: "You can't fix what you can't reproduce. What's the first step before attempting any fix?",
+    gates: ["Incident severity agreed (financial impact → emergency priority)", "Logging enhanced (add detailed error context)", "Rollback plan in place", "Root cause hypothesis documented", "Fix tested against production-like data", "Regression test created"],
+    ideal: {
+      classification: "Complex — Production bug, intermittent, financial impact",
+      workflow: "Full Pipeline with incident response — Needs root cause analysis, safe rollback plan",
+      gates: "✓ Incident severity agreed ✓ Logging enhanced ✓ Rollback ready ✓ Root cause hypothesis ✓ Fix tested on prod-like data ✓ Regression test created",
+      execution: "(1) Enhance logging: wrap payment processing with try-catch and detailed context (request body, transaction ID, stack trace). (2) Deploy enhanced logging. (3) Wait for next crash; analyze logs. (4) Develop hypothesis. (5) Create unit test that reproduces issue. (6) Fix. (7) Test extensively.",
+      validators: "Enhanced logging captures next failure with full context, unit test reproduces issue, fix passes all payment tests, no regressions, rollback can be executed in <5 minutes",
+      handoff: "STATUS: Payment crash root caused (race condition in transaction ID assignment). Unit test now prevents regression. Enhanced logging deployed. NEXT: Monitor production for 48 hours; alert on any payment errors. DECISIONS: Enhanced logging first (lowest-risk). Reproduced issue with unit test before fix."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Full Pipeline with incident response and rollback", pts: 2 },
+      { text: "Set incident priority; had rollback ready; enhanced logging", pts: 2 },
+      { text: "Focused on root cause; didn't add features during debug", pts: 2 },
+      { text: "Logging enhanced; issue reproduced; fix tested", pts: 2 },
+      { text: "Root cause documented; monitoring plan clear in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Made a guess fix without reproducing the issue first", pts: 2 },
+      { text: "Didn't have a rollback plan ready", pts: 3 }
+    ]
+  },
+  {
+    id: 18, title: "Coordinate Breaking API Changes", difficulty: 4, pillar: "Phase Gates",
+    scenario: "Backend wants to release API v2 with breaking changes. Frontend needs to migrate from v1 to v2. Mobile app also uses v1. Three separate teams. No coordination plan. Changes: user endpoint response format, auth header format, and error codes all change. All teams deploy independently.",
+    hint: "Three teams, breaking changes. What coordination gates prevent a production outage?",
+    gates: ["All teams have implemented and tested v2", "Backward compatibility period planned (v1 supported in parallel)", "Deployment order agreed (backend → web → mobile)", "Rollback plan for each team", "User communication plan", "Monitoring plan for adoption metrics"],
+    ideal: {
+      classification: "Complex — Multi-team, breaking changes, simultaneous deployment required",
+      workflow: "Full Pipeline with coordination gates — Requires phased rollout, compatibility period",
+      gates: "✓ All teams tested v2 ✓ v1/v2 parallel period planned ✓ Deployment order agreed ✓ Rollback plan per team ✓ Communication plan ✓ Adoption monitoring",
+      execution: "(1) Backend deploys v2 but keeps v1 working for 2 weeks. (2) Web frontend updates to v2; tests thoroughly. (3) Mobile app updates; users update via app store. (4) Monitor adoption; keep v1 for 2 more weeks. (5) Deprecate v1. Each team does own implementation; deployment is coordinated.",
+      validators: "Both v1 and v2 working on backend, web frontend tests passing on v2, mobile app tested on v2, rollback tested, monitoring dashboard created for version adoption",
+      handoff: "STATUS: API v2 coordinated. All implementations complete. Backend serving v1+v2. Web migrated. Mobile ready. NEXT: (1) Deploy backend. (2) Deploy web. (3) Mobile release. (4) Monitor 2 weeks. (5) Deprecate v1. BLOCKERS: Mobile app store approval (24–48 hrs). DECISIONS: Parallel v1/v2 period to reduce risk."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Full Pipeline with coordination gates", pts: 2 },
+      { text: "Verified all teams ready; rollback plan; communication plan", pts: 2 },
+      { text: "Coordinated without forcing extra features", pts: 2 },
+      { text: "Both API versions working; all clients tested", pts: 2 },
+      { text: "Deployment sequence clear; adoption monitoring plan in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Coordinated teams but skipped rollback plan", pts: 2 },
+      { text: "Deployed all teams simultaneously (no coordination)", pts: 3 }
+    ]
+  },
+  {
+    id: 19, title: "Recover Failed CI/CD Pipeline", difficulty: 4, pillar: "Session Continuity",
+    scenario: "A feature branch for a large refactor (3 days, 12 commits) has failing CI. The developer is unavailable for 2 days. Your job: understand the state, fix the CI failure, and prepare it for merge. Error: \"Database migration test timed out.\" The migration script exists but is unclear.",
+    hint: "You're picking up someone else's work mid-flight. What must you understand before touching anything?",
+    gates: ["Feature branch commits reviewed (understand what was changed)", "Database migration script analyzed", "CI failure root cause identified (timeout? actual error?)", "Fix tested locally before re-running CI", "Code review ready for when CI passes"],
+    ideal: {
+      classification: "Complex — Requires understanding prior work, multi-step fix, continuity dependency",
+      workflow: "Full Pipeline with recovery focus — Needs status assessment, migration debug, safe resumption",
+      gates: "✓ Feature branch commits reviewed ✓ Migration script analyzed ✓ Root cause identified ✓ Fix tested locally ✓ Code review ready",
+      execution: "(1) Review all 12 commits to understand scope. (2) Check migration script for inefficient queries or missing indexes. (3) Run migration locally with timing. (4) Identify bottleneck. (5) Fix migration (add index? refactor query?). (6) Run CI locally to verify. (7) Push fix; let CI run.",
+      validators: "Feature branch commits understood (summary written), migration script reviewed and optimized, local migration runs under timeout limit, CI tests pass (no flakes), ready for review",
+      handoff: "STATUS: CI failure root caused — missing index on users table caused migration timeout. Fixed by adding index. Migration now 15s (was 90s timeout). CI passing. NEXT: Code review and merge. DECISIONS: Added index rather than increasing timeout (proper fix). Reviewed all 12 commits. Ready for merge once original author approves."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Full Pipeline with recovery and assessment steps", pts: 2 },
+      { text: "Reviewed commits; analyzed migration; tested locally", pts: 2 },
+      { text: "Fixed only CI failure; didn't refactor the feature itself", pts: 2 },
+      { text: "Migration optimized; CI passing; ready for review", pts: 2 },
+      { text: "Clear root cause, solution, and merge readiness in handoff", pts: 2 }
+    ],
+    deductions: [
+      { text: "Just increased the CI timeout without fixing the issue", pts: 2 },
+      { text: "Didn't review the feature branch commits to understand context", pts: 3 }
+    ]
+  },
+  {
+    id: 20, title: "Framework Version Upgrade (React 16→18)", difficulty: 4, pillar: "Decision Trees",
+    scenario: "Your React app is on v16. React v18 is now required by a new dependency. The app has 50+ components, 10 major features, and 200+ tests. It's in active development. You must upgrade without breaking anything. The codebase is critical production software.",
+    hint: "50+ components, 200+ tests, active development. This is ALL FOUR pillars at once.",
+    gates: ["Upgrade plan document (phased approach)", "Dependency analysis (what breaks with React v18?)", "Test coverage baseline measured pre-upgrade", "Rollback plan documented", "Team aligned on timeline", "Feature freeze agreed with product", "Performance benchmarks captured"],
+    ideal: {
+      classification: "Complex — Large scope, critical system, potential for many regressions",
+      workflow: "Full Pipeline with multi-phase plan — Needs planning, risk mitigation, careful rollout",
+      gates: "✓ Upgrade plan ✓ Dependency analysis ✓ Test baseline ✓ Rollback plan ✓ Team aligned ✓ Feature freeze agreed ✓ Perf benchmarks",
+      execution: "Phase 1 (Analyze): Map all dependencies; document breaking changes; write rollback strategy. Phase 2 (Upgrade): Update packages; run tests; fix async/batching issues; verify performance within 5%. Phase 3 (Validate): Deploy to staging; QA for 2–3 days; gather feedback; fix issues; then merge to main with production monitoring.",
+      validators: "Phase 1: Dependency list & breaking changes documented. Phase 2: All tests passing, no console warnings, perf within 5%. Phase 3: Staging QA clean, no regressions, rollback tested and available.",
+      handoff: "STATUS: React v18 upgrade complete and deployed to production. No regressions. Perf maintained. NEXT: Monitor production for 7 days. DECISIONS: Phased approach + multi-day staging validation. Updated packages in safe order. Fixed all async/batching issues revealed by tests. Rollback still available."
+    },
+    scoring: [
+      { text: "Correctly identified as 'complex'", pts: 2 },
+      { text: "Full Pipeline with multi-phase plan", pts: 2 },
+      { text: "Planned all gates (dependency analysis, test baseline, feature freeze, rollback)", pts: 2 },
+      { text: "Focused on upgrade; deferred new features during this work", pts: 2 },
+      { text: "Tests passing; performance baseline maintained; staging validation done", pts: 2 },
+      { text: "Clear phased handoffs; production monitoring plan", pts: 2 }
+    ],
+    deductions: [
+      { text: "Tried to do the upgrade in one session", pts: 2 },
+      { text: "Skipped the staging validation step", pts: 3 }
+    ]
+  }
+];
+
+const STEPS = [
+  { id: 'scenario', label: 'Scenario' },
+  { id: 'classification', label: 'Classify' },
+  { id: 'workflow', label: 'Workflow' },
+  { id: 'gates', label: 'Gate Check' },
+  { id: 'execution', label: 'Execution' },
+  { id: 'validators', label: 'Validators' },
+  { id: 'continuity', label: 'Handoff' }
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  currentMission: null,
+  currentStep: 0,
+  responses: {},
+  scores: {}, // missionId -> { pts: number, breakdown: {pos: [], neg: []} }
+  timerInterval: null,
+  timerSeconds: 0
+};
+
+function saveState() {
+  try { localStorage.setItem('sao_state_v1', JSON.stringify({ scores: state.scores })); } catch(e) {}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem('sao_state_v1');
+    if (s) { const d = JSON.parse(s); state.scores = d.scores || {}; }
+  } catch(e) {}
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  window.scrollTo(0, 0);
+  if (screen === 'hub') renderHub();
+  if (screen === 'summary') renderSummary();
+}
+
+function confirmLeave() {
+  if (state.currentStep > 0) {
+    if (!confirm('Leave this mission? Your current responses will be lost.')) return;
+  }
+  clearTimer();
+  goTo('hub');
+}
+
+// ============================================================
+// HUB
+// ============================================================
+function renderHub() {
+  const done = Object.keys(state.scores).length;
+  const total = Object.values(state.scores).reduce((a, b) => a + b.pts, 0);
+  const avg = done > 0 ? (total / done).toFixed(1) : '—';
+  document.getElementById('hub-total-score').textContent = total;
+  document.getElementById('hub-missions-done').textContent = done;
+  document.getElementById('hub-avg').textContent = avg;
+  document.getElementById('hub-progress').style.width = (done / 20 * 100) + '%';
+  document.getElementById('nav-score').textContent = total;
+  document.getElementById('hub-summary-btn').style.display = done > 0 ? '' : 'none';
+
+  const levels = [
+    { n: 1, label: 'LEVEL 1 — FUNDAMENTALS', desc: 'Missions 1–5 · Decision Trees & Validators', cls: 'level-1', badge: '⭐ Difficulty 1', ids: [1,2,3,4,5] },
+    { n: 2, label: 'LEVEL 2 — SPECIFICATION WORK', desc: 'Missions 6–10 · Phase Gates', cls: 'level-2', badge: '⭐⭐ Difficulty 2', ids: [6,7,8,9,10] },
+    { n: 3, label: 'LEVEL 3 — SCOPE MANAGEMENT', desc: 'Missions 11–15 · Session Continuity', cls: 'level-3', badge: '⭐⭐⭐ Difficulty 3', ids: [11,12,13,14,15] },
+    { n: 4, label: 'LEVEL 4 — EXPERT MASTERY', desc: 'Missions 16–20 · All Pillars', cls: 'level-4', badge: '⭐⭐⭐⭐ Difficulty 4', ids: [16,17,18,19,20] }
+  ];
+
+  const container = document.getElementById('hub-missions-container');
+  container.innerHTML = levels.map(lvl => `
+    <div class="level-section ${lvl.cls}">
+      <div class="level-header">
+        <div class="level-badge">${lvl.badge}</div>
+        <h3>${lvl.label}</h3>
+        <span class="desc">${lvl.desc}</span>
+      </div>
+      <div class="missions-grid">
+        ${lvl.ids.map(id => {
+          const m = MISSIONS.find(x => x.id === id);
+          const sc = state.scores[id];
+          const completed = !!sc;
+          const pillarTag = getPillarTag(m.pillar);
+          return `<div class="mission-card ${completed ? 'completed' : ''}" onclick="startMission(${id})">
+            <div class="num">MISSION ${String(id).padStart(2,'0')}</div>
+            <div class="title">${m.title}</div>
+            <span class="pillar-tag ${pillarTag.cls}">${pillarTag.icon} ${pillarTag.short}</span>
+            ${sc ? `<div class="score-chip"><span>${sc.pts}</span>/12 pts</div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function getPillarTag(pillar) {
+  if (pillar.includes('Decision')) return { cls: 'tag-dt', icon: '🌳', short: 'Dec. Trees' };
+  if (pillar.includes('Phase')) return { cls: 'tag-pg', icon: '🚪', short: 'Phase Gates' };
+  if (pillar.includes('Validator')) return { cls: 'tag-vl', icon: '✅', short: 'Validators' };
+  return { cls: 'tag-sc', icon: '📝', short: 'Continuity' };
+}
+
+// ============================================================
+// MISSION PLAYER
+// ============================================================
+function startMission(id) {
+  state.currentMission = MISSIONS.find(m => m.id === id);
+  state.currentStep = 0;
+  state.responses = {};
+  state.timerSeconds = 0;
+  goTo('mission');
+  renderMissionHeader();
+  renderStepper();
+  renderStep();
+  startTimer();
+  document.getElementById('mission-num-nav').textContent = id;
+}
+
+function startTimer() {
+  clearTimer();
+  state.timerInterval = setInterval(() => {
+    state.timerSeconds++;
+    const m = String(Math.floor(state.timerSeconds / 60)).padStart(2, '0');
+    const s = String(state.timerSeconds % 60).padStart(2, '0');
+    const el = document.getElementById('timer-display');
+    if (el) el.textContent = m + ':' + s;
+  }, 1000);
+}
+
+function clearTimer() {
+  if (state.timerInterval) { clearInterval(state.timerInterval); state.timerInterval = null; }
+}
+
+function renderMissionHeader() {
+  const m = state.currentMission;
+  const pillarTag = getPillarTag(m.pillar);
+  const diffColors = ['','d1','d2','d3','d4'];
+  document.getElementById('mission-header-block').innerHTML = `
+    <div class="meta">
+      <span class="diff-badge ${diffColors[m.difficulty]}">Difficulty ${m.difficulty}</span>
+      <span class="pillar-badge ${pillarTag.cls}">${pillarTag.icon} ${m.pillar}</span>
+      <span style="color:var(--text-dim);font-size:12px;margin-left:auto;">Mission ${m.id} / 20</span>
+    </div>
+    <h2>${m.title}</h2>
+  `;
+}
+
+function renderStepper() {
+  document.getElementById('mission-stepper').innerHTML = STEPS.map((s, i) => `
+    <div class="step-item ${i === state.currentStep ? 'active' : i < state.currentStep ? 'done' : ''}">
+      <span class="snum">${i + 1}</span>${s.label}
+    </div>
+  `).join('');
+}
+
+function renderStep() {
+  const m = state.currentMission;
+  const step = STEPS[state.currentStep];
+  const content = document.getElementById('mission-step-content');
+  const prevBtn = document.getElementById('btn-prev');
+  const nextBtn = document.getElementById('btn-next');
+
+  prevBtn.style.display = state.currentStep > 0 ? '' : 'none';
+  nextBtn.textContent = state.currentStep === STEPS.length - 1 ? '✓ Finish & Score' : 'Next →';
+
+  if (step.id === 'scenario') {
+    content.innerHTML = `
+      <div class="step-panel">
+        <h3><span class="sicon">📋</span> MISSION BRIEFING</h3>
+        <div class="scenario-box">${m.scenario.replace(/`([^`]+)`/g, '<code style="background:var(--bg);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px;">$1</code>')}</div>
+        <div class="hint-box"><strong>💡 Focus Area:</strong> Primary pillar — <strong style="color:var(--green)">${m.pillar}</strong>. ${m.hint}</div>
+      </div>`;
+  } else if (step.id === 'classification') {
+    const opts = ['small', 'medium', 'large', 'complex'];
+    const descriptions = {
+      small: '1-2 files, obvious fix, no scope risk',
+      medium: '3-5 files, defined scope, standard validation',
+      large: '6+ files, multiple components, needs approval gates',
+      complex: 'Ambiguous requirements, architectural risk, multi-session'
+    };
+    content.innerHTML = `
+      <div class="step-panel">
+        <h3><span class="sicon">🌳</span> STEP 2 — CLASSIFY TASK COMPLEXITY</h3>
+        <label>Choose the complexity level for this mission:</label>
+        <div class="radio-group">
+          ${opts.map(o => `
+            <input type="radio" name="classification" id="cl-${o}" class="radio-option" value="${o}" ${state.responses.classification === o ? 'checked' : ''}>
+            <label for="cl-${o}" class="radio-label"><strong>${o.charAt(0).toUpperCase() + o.slice(1)}</strong> — ${descriptions[o]}</label>
+          `).join('')}
+        </div>
+        <div class="field-group">
+          <label>Your reasoning (1-2 sentences):</label>
+          <textarea rows="3" id="cl-reasoning" placeholder="Why did you choose this complexity level?">${state.responses.classificationReasoning || ''}</textarea>
+        </div>
+      </div>`;
+  } else if (step.id === 'workflow') {
+    const opts2 = [
+      { val: 'quick', label: 'Quick Mode', desc: 'No spec needed, no gates, fast execution' },
+      { val: 'spec', label: 'Spec Brief', desc: 'Design approved, scope clear, standard gates' },
+      { val: 'pipeline', label: 'Full Pipeline', desc: 'Architectural risk, multiple components, approval gates required' }
+    ];
+    content.innerHTML = `
+      <div class="step-panel">
+        <h3><span class="sicon">🔀</span> STEP 3 — CHOOSE WORKFLOW PATH</h3>
+        <label>Select the appropriate workflow for this task:</label>
+        <div class="radio-group" style="flex-direction:column;">
+          ${opts2.map(o => `
+            <input type="radio" name="workflow" id="wf-${o.val}" class="radio-option" value="${o.val}" ${state.responses.workflow === o.val ? 'checked' : ''}>
+            <label for="wf-${o.val}" class="radio-label" style="width:100%;"><strong>${o.label}</strong> — ${o.desc}</label>
+          `).join('')}
+        </div>
+        <div class="field-group">
+          <label>Why did you choose this path?</label>
+          <textarea rows="3" id="wf-reasoning" placeholder="Explain your workflow choice...">${state.responses.workflowReasoning || ''}</textarea>
+        </div>
+      </div>`;
+  } else if (step.id === 'gates') {
+    content.innerHTML = `
+      <div class="step-panel">
+        <h3><span class="sicon">🚪</span> STEP 4 — PHASE GATE VERIFICATION</h3>
+        <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">Check each gate that you have verified (or confirmed is not required):</p>
+        <div class="gate-list">
+          ${m.gates.map((g, i) => `
+            <div class="gate-item">
+              <input type="checkbox" id="gate-${i}" ${state.responses.gates && state.responses.gates[i] ? 'checked' : ''}>
+              <label for="gate-${i}">${g}</label>
+            </div>
+          `).join('')}
+        </div>
+        <div class="field-group" style="margin-top:16px;">
+          <label>Any gates you're skipping and why? (or "None — all verified")</label>
+          <textarea rows="3" id="gates-notes" placeholder="Notes on gate status...">${state.responses.gatesNotes || ''}</textarea>
+        </div>
+      </div>`;
+  } else if (step.id === 'execution') {
+    content.innerHTML = `
+      <div class="step-panel">
+        <h3><span class="sicon">⚙️</span> STEP 5 — EXECUTION SUMMARY</h3>
+        <div class="field-group">
+          <label>Describe the specific actions you would take (3-5 sentences):</label>
+          <textarea rows="6" id="execution-text" placeholder="What files would you touch? What changes would you make? In what order?">${state.responses.execution || ''}</textarea>
+        </div>
+        <div class="hint-box"><strong>⚠️ Scope discipline:</strong> Only describe work within the stated requirements. No extras.</div>
+      </div>`;
+  } else if (step.id === 'validators') {
+    content.innerHTML = `
+      <div class="step-panel">
+        <h3><span class="sicon">✅</span> STEP 6 — VALIDATOR CHECK</h3>
+        <div class="field-group">
+          <label>How will you prove this work is done and correct?</label>
+          <textarea rows="4" id="validators-text" placeholder="Tests passing? Commit message format? Branch naming? No untracked changes?">${state.responses.validators || ''}</textarea>
+        </div>
+        <div class="field-group">
+          <label>Write your commit message:</label>
+          <textarea rows="2" id="commit-msg" placeholder="type: scope - description (e.g., fix: correct typo in LoginForm label)">${state.responses.commitMsg || ''}</textarea>
+        </div>
+      </div>`;
+  } else if (step.id === 'continuity') {
+    content.innerHTML = `
+      <div class="step-panel">
+        <h3><span class="sicon">📝</span> STEP 7 — SESSION CONTINUITY HANDOFF</h3>
+        <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">Write a STATE.md-style handoff so the next engineer can resume seamlessly:</p>
+        <div class="field-group">
+          <label>STATUS (what was done):</label>
+          <textarea rows="2" id="status-text" placeholder="What was completed in this session?">${state.responses.status || ''}</textarea>
+        </div>
+        <div class="field-group">
+          <label>NEXT STEPS (what remains):</label>
+          <textarea rows="2" id="next-text" placeholder="What should be done next?">${state.responses.next || ''}</textarea>
+        </div>
+        <div class="field-group">
+          <label>BLOCKERS (what's stuck):</label>
+          <textarea rows="2" id="blockers-text" placeholder="Any blockers or dependencies? Or 'None'">${state.responses.blockers || ''}</textarea>
+        </div>
+        <div class="field-group">
+          <label>DECISIONS MADE (why you chose this path):</label>
+          <textarea rows="2" id="decisions-text" placeholder="Key decisions made and rationale...">${state.responses.decisions || ''}</textarea>
+        </div>
+      </div>`;
+  }
+}
+
+function saveStepResponses() {
+  const step = STEPS[state.currentStep];
+  if (step.id === 'classification') {
+    const r = document.querySelector('input[name="classification"]:checked');
+    state.responses.classification = r ? r.value : '';
+    const re = document.getElementById('cl-reasoning');
+    state.responses.classificationReasoning = re ? re.value : '';
+  } else if (step.id === 'workflow') {
+    const r = document.querySelector('input[name="workflow"]:checked');
+    state.responses.workflow = r ? r.value : '';
+    const re = document.getElementById('wf-reasoning');
+    state.responses.workflowReasoning = re ? re.value : '';
+  } else if (step.id === 'gates') {
+    const m = state.currentMission;
+    state.responses.gates = m.gates.map((_, i) => document.getElementById('gate-' + i)?.checked || false);
+    const n = document.getElementById('gates-notes');
+    state.responses.gatesNotes = n ? n.value : '';
+  } else if (step.id === 'execution') {
+    const e = document.getElementById('execution-text');
+    state.responses.execution = e ? e.value : '';
+  } else if (step.id === 'validators') {
+    const v = document.getElementById('validators-text');
+    state.responses.validators = v ? v.value : '';
+    const c = document.getElementById('commit-msg');
+    state.responses.commitMsg = c ? c.value : '';
+  } else if (step.id === 'continuity') {
+    state.responses.status = document.getElementById('status-text')?.value || '';
+    state.responses.next = document.getElementById('next-text')?.value || '';
+    state.responses.blockers = document.getElementById('blockers-text')?.value || '';
+    state.responses.decisions = document.getElementById('decisions-text')?.value || '';
+  }
+}
+
+function nextStep() {
+  saveStepResponses();
+  if (state.currentStep === STEPS.length - 1) {
+    clearTimer();
+    goToScoring();
+    return;
+  }
+  state.currentStep++;
+  renderStepper();
+  renderStep();
+  window.scrollTo(0, 0);
+}
+
+function prevStep() {
+  saveStepResponses();
+  if (state.currentStep > 0) {
+    state.currentStep--;
+    renderStepper();
+    renderStep();
+    window.scrollTo(0, 0);
+  }
+}
+
+// ============================================================
+// SCORING SCREEN
+// ============================================================
+function goToScoring() {
+  const m = state.currentMission;
+  goTo('scoring');
+  document.getElementById('scoring-title').textContent = `Score: Mission ${m.id} — ${m.title}`;
+  document.getElementById('scoring-subtitle').textContent = `Difficulty ${m.difficulty} · ${m.pillar}`;
+
+  // Responses summary
+  const summary = document.getElementById('scoring-responses-summary');
+  const rows = [
+    { lbl: 'Classification', val: state.responses.classification || '—' },
+    { lbl: 'Workflow', val: state.responses.workflow || '—' },
+    { lbl: 'Gates Verified', val: state.responses.gates ? state.responses.gates.filter(Boolean).length + ' / ' + m.gates.length : '0 / ' + m.gates.length },
+    { lbl: 'Execution', val: (state.responses.execution || '—').substring(0, 120) + ((state.responses.execution || '').length > 120 ? '…' : '') },
+    { lbl: 'Validators', val: (state.responses.validators || '—').substring(0, 100) + ((state.responses.validators || '').length > 100 ? '…' : '') },
+    { lbl: 'Commit Msg', val: state.responses.commitMsg || '—' },
+    { lbl: 'Status', val: (state.responses.status || '—').substring(0, 80) + ((state.responses.status || '').length > 80 ? '…' : '') }
+  ];
+  summary.innerHTML = rows.map(r => `
+    <div style="display:flex;gap:12px;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">
+      <span style="color:var(--cyan);font-weight:600;min-width:120px;">${r.lbl}</span>
+      <span style="color:var(--text)">${r.val}</span>
+    </div>
+  `).join('');
+
+  // Positive scoring items
+  document.getElementById('score-positives').innerHTML = m.scoring.map((item, i) => `
+    <div class="score-item">
+      <input type="checkbox" id="pos-${i}" onchange="updateScore()">
+      <label for="pos-${i}"><strong style="color:var(--green)">+${item.pts}</strong> ${item.text}</label>
+    </div>
+  `).join('');
+
+  // Negative scoring items
+  document.getElementById('score-negatives').innerHTML = m.deductions.map((item, i) => `
+    <div class="score-item neg">
+      <input type="checkbox" id="neg-${i}" onchange="updateScore()">
+      <label for="neg-${i}"><strong style="color:var(--red)">−${item.pts}</strong> ${item.text}</label>
+    </div>
+  `).join('');
+
+  updateScore();
+
+  // Ideal response
+  const ideal = document.getElementById('ideal-response-block');
+  ideal.style.display = 'none';
+  document.getElementById('ideal-toggle-btn').textContent = '👁 Reveal Ideal Response';
+  ideal.innerHTML = `
+    <h3>🏆 IDEAL RESPONSE — ${m.title}</h3>
+    <table class="ideal-table">
+      <tr><th>Component</th><th>Ideal Answer</th></tr>
+      <tr><td>Classification</td><td>${m.ideal.classification}</td></tr>
+      <tr><td>Workflow</td><td>${m.ideal.workflow}</td></tr>
+      <tr><td>Gates</td><td>${m.ideal.gates}</td></tr>
+      <tr><td>Execution</td><td>${m.ideal.execution}</td></tr>
+      <tr><td>Validators</td><td>${m.ideal.validators}</td></tr>
+      <tr><td>Handoff</td><td>${m.ideal.handoff}</td></tr>
+    </table>
+  `;
+
+  // Next mission button
+  const nextId = state.currentMission.id + 1;
+  const nextMission = MISSIONS.find(m => m.id === nextId);
+  const btn = document.getElementById('next-mission-btn');
+  if (nextMission) {
+    btn.textContent = `Next Mission: #${nextId} →`;
+    btn.style.display = '';
+  } else {
+    btn.textContent = '🏆 View Campaign Summary';
+    btn.style.display = '';
+  }
+}
+
+function updateScore() {
+  const m = state.currentMission;
+  let total = 0;
+  m.scoring.forEach((item, i) => {
+    if (document.getElementById('pos-' + i)?.checked) total += item.pts;
+  });
+  m.deductions.forEach((item, i) => {
+    if (document.getElementById('neg-' + i)?.checked) total -= item.pts;
+  });
+  total = Math.max(0, total);
+
+  document.getElementById('score-total').textContent = total;
+  const grade = document.getElementById('score-grade');
+  if (total === 12) { grade.textContent = '★ Expert Agent — Perfect Score!'; grade.className = 'grade score-excellent'; }
+  else if (total >= 10) { grade.textContent = '★ Strong Execution'; grade.className = 'grade score-good'; }
+  else if (total >= 8) { grade.textContent = 'Acceptable — Core Objectives Met'; grade.className = 'grade score-ok'; }
+  else if (total >= 6) { grade.textContent = 'Needs Work — Missed Key Gates or Validators'; grade.className = 'grade score-bad'; }
+  else { grade.textContent = 'Study the Ideal Response — Revisit This Pillar'; grade.className = 'grade score-bad'; }
+
+  // Save score
+  state.scores[m.id] = { pts: total };
+  saveState();
+  document.getElementById('nav-score') && (document.getElementById('nav-score').textContent = Object.values(state.scores).reduce((a, b) => a + b.pts, 0));
+}
+
+function toggleIdeal() {
+  const block = document.getElementById('ideal-response-block');
+  const btn = document.getElementById('ideal-toggle-btn');
+  if (block.style.display === 'none') {
+    block.style.display = '';
+    btn.textContent = '👁 Hide Ideal Response';
+  } else {
+    block.style.display = 'none';
+    btn.textContent = '👁 Reveal Ideal Response';
+  }
+}
+
+function goNextMission() {
+  const nextId = state.currentMission.id + 1;
+  const nextMission = MISSIONS.find(m => m.id === nextId);
+  if (nextMission) {
+    startMission(nextMission.id);
+  } else {
+    goTo('summary');
+  }
+}
+
+// ============================================================
+// SUMMARY
+// ============================================================
+function renderSummary() {
+  const done = Object.keys(state.scores).length;
+  const total = Object.values(state.scores).reduce((a, b) => a + b.pts, 0);
+  document.getElementById('summary-total').textContent = total;
+
+  let subtitle = '';
+  if (total >= 200) subtitle = '🏆 Master Agent — You can teach others.';
+  else if (total >= 150) subtitle = '💪 Strong Operator — Level 4 missions await.';
+  else if (total >= 90) subtitle = '📈 Growing — Try Level 3 missions.';
+  else if (done > 0) subtitle = '📚 Learning the pillars — focus on early missions.';
+  else subtitle = 'No missions completed yet.';
+  document.getElementById('summary-subtitle').textContent = subtitle;
+
+  // Pillar breakdown
+  const pillarMap = { 'Decision Trees': { icon: '🌳', scores: [] }, 'Phase Gates': { icon: '🚪', scores: [] }, 'Validators': { icon: '✅', scores: [] }, 'Session Continuity': { icon: '📝', scores: [] } };
+  MISSIONS.forEach(m => {
+    if (state.scores[m.id]) {
+      const key = Object.keys(pillarMap).find(k => m.pillar.includes(k.split(' ')[0])) || 'Decision Trees';
+      if (pillarMap[key]) pillarMap[key].scores.push(state.scores[m.id].pts);
+    }
+  });
+  document.getElementById('summary-pillar-breakdown').innerHTML = Object.entries(pillarMap).map(([name, data]) => {
+    const avg = data.scores.length > 0 ? (data.scores.reduce((a, b) => a + b, 0) / data.scores.length).toFixed(1) : '—';
+    const color = avg !== '—' ? (avg >= 10 ? 'var(--green)' : avg >= 7 ? 'var(--cyan)' : 'var(--yellow)') : 'var(--text-dim)';
+    return `<div class="pillar-stat"><div class="icon">${data.icon}</div><div class="pname">${name}</div><div class="pval" style="color:${color}">${avg}</div><div style="font-size:11px;color:var(--text-dim)">${data.scores.length} missions</div></div>`;
+  }).join('');
+
+  // Missions table
+  document.getElementById('summary-missions-table').innerHTML = `
+    <table>
+      <tr><th>#</th><th>Mission</th><th>Difficulty</th><th>Pillar</th><th>Score</th></tr>
+      ${MISSIONS.map(m => {
+        const sc = state.scores[m.id];
+        const pts = sc ? sc.pts : '—';
+        const color = sc ? (sc.pts >= 10 ? 'var(--green)' : sc.pts >= 7 ? 'var(--cyan)' : sc.pts >= 4 ? 'var(--yellow)' : 'var(--red)') : 'var(--text-dim)';
+        const pillarTag = getPillarTag(m.pillar);
+        return `<tr>
+          <td style="color:var(--text-dim)">${m.id}</td>
+          <td style="cursor:pointer;color:var(--cyan)" onclick="startMission(${m.id})">${m.title}</td>
+          <td><span class="diff-badge d${m.difficulty}">D${m.difficulty}</span></td>
+          <td><span class="pillar-tag ${pillarTag.cls}">${pillarTag.icon} ${pillarTag.short}</span></td>
+          <td style="font-weight:700;color:${color}">${pts}${sc ? '/12' : ''}</td>
+        </tr>`;
+      }).join('')}
+      <tr style="background:var(--bg3)">
+        <td colspan="4" style="font-weight:700;color:var(--text)">TOTAL</td>
+        <td style="font-weight:800;color:var(--green);font-size:16px">${total}/240</td>
+      </tr>
+    </table>`;
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetGame() {
+  if (!confirm('Reset all campaign progress? This cannot be undone.')) return;
+  state.scores = {};
+  saveState();
+  renderSummary();
+  showToast('Campaign reset!', 'success');
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ============================================================
+// ACADEMIA
+// ============================================================
+function switchPillar(id) {
+  document.querySelectorAll('.pillar-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.pillar-tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('pillar-' + id).classList.add('active');
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadState();
+renderHub();
+</script>
+</body>
+</html>
