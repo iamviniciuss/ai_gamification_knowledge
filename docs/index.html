@@ -486,6 +486,15 @@
     .concept-grid { grid-template-columns: repeat(3, 1fr); }
   }
 </style>
+<!-- PostHog Analytics -->
+<script>
+  !function(t,e){var o,n,p,r;e.__SV||(window.posthog&&window.posthog.__loaded)||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="ci init Pi Ci ft Oi Fi ki capture calculateEventProperties Ui register register_once register_for_session unregister unregister_for_session Bi getFeatureFlag getFeatureFlagPayload getFeatureFlagResult isFeatureEnabled reloadFeatureFlags updateFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSurveysLoaded onSessionId getSurveys getActiveMatchingSurveys renderSurvey displaySurvey cancelPendingSurvey canRenderSurvey canRenderSurveyAsync identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException startExceptionAutocapture stopExceptionAutocapture loadToolbar get_property getSessionProperty ji Di createPersonProfile setInternalOrTestUser zi Ti Hi opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing get_explicit_consent_status is_capturing clear_opt_in_out_capturing Ai debug bt Ni getPageViewId captureTraceFeedback captureTraceMetric Ei".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+  posthog.init('phc_JnSmehHI5CDwVUAxAMut62yGKn9x3CN8pwUoTkg3Aek', {
+    api_host: 'https://us.i.posthog.com',
+    defaults: '2026-01-30',
+    person_profiles: 'identified_only'
+  })
+</script>
 </head>
 <body>
 
@@ -1598,9 +1607,17 @@ function loadState() {
 }
 
 // ============================================================
+// POSTHOG TRACKING HELPER
+// ============================================================
+function ph(event, props) {
+  if (typeof posthog !== 'undefined') posthog.capture(event, props);
+}
+
+// ============================================================
 // NAVIGATION
 // ============================================================
 function goTo(screen) {
+  ph('screen_view', { screen: screen });
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + screen).classList.add('active');
   window.scrollTo(0, 0);
@@ -1686,7 +1703,9 @@ function getPillarTag(pillar) {
 // MISSION PLAYER
 // ============================================================
 function startMission(id) {
-  state.currentMission = MISSIONS.find(m => m.id === id);
+  const mission = MISSIONS.find(m => m.id === id);
+  ph('mission_start', { mission_id: id, mission_title: mission.title, pillar: mission.pillar, difficulty: mission.difficulty });
+  state.currentMission = mission;
   state.currentStep = 0;
   state.responses = {};
   state.timerSeconds = 0;
@@ -1695,7 +1714,7 @@ function startMission(id) {
   renderStepper();
   renderStep();
   startTimer();
-  document.getElementById('mission-num-nav').textContent = id;
+  document.getElementById('mission-num-nav').textContent = state.currentMission.id;
 }
 
 function startTimer() {
@@ -1899,10 +1918,12 @@ function nextStep() {
   saveStepResponses();
   if (state.currentStep === STEPS.length - 1) {
     clearTimer();
+    ph('mission_complete', { mission_id: state.currentMission.id, mission_title: state.currentMission.title, time_seconds: state.timerSeconds });
     goToScoring();
     return;
   }
   state.currentStep++;
+  ph('mission_step', { mission_id: state.currentMission.id, step: state.currentStep, step_label: STEPS[state.currentStep].label });
   renderStepper();
   renderStep();
   window.scrollTo(0, 0);
@@ -2013,12 +2034,14 @@ function updateScore() {
   else { grade.textContent = 'Study the Ideal Response — Revisit This Pillar'; grade.className = 'grade score-bad'; }
 
   // Save score
+  ph('mission_scored', { mission_id: m.id, mission_title: m.title, score: total, pillar: m.pillar, difficulty: m.difficulty });
   state.scores[m.id] = { pts: total };
   saveState();
   document.getElementById('nav-score') && (document.getElementById('nav-score').textContent = Object.values(state.scores).reduce((a, b) => a + b.pts, 0));
 }
 
 function toggleIdeal() {
+  ph('toggle_ideal_response', { mission_id: state.currentMission.id });
   const block = document.getElementById('ideal-response-block');
   const btn = document.getElementById('ideal-toggle-btn');
   if (block.style.display === 'none') {
@@ -2099,6 +2122,7 @@ function renderSummary() {
 // ============================================================
 function resetGame() {
   if (!confirm('Reset all campaign progress? This cannot be undone.')) return;
+  ph('campaign_reset', { missions_completed: Object.keys(state.scores).length, total_score: Object.values(state.scores).reduce((a, b) => a + b.pts, 0) });
   state.scores = {};
   saveState();
   renderSummary();
@@ -2119,6 +2143,7 @@ function showToast(msg, type = '') {
 // ACADEMIA
 // ============================================================
 function switchPillar(id) {
+  ph('pillar_switch', { pillar: id });
   document.querySelectorAll('.pillar-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.pillar-tab').forEach(el => el.classList.remove('active'));
   document.getElementById('pillar-' + id).classList.add('active');
